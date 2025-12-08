@@ -1,0 +1,11 @@
+#!/bin/sh
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=00:05:00
+#SBATCH --account=gmtb
+#SBATCH -q batch
+#SBATCH --output=scm_out.log
+
+RUN_COMMAND
+
+exit
