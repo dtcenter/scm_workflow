@@ -309,18 +309,24 @@ EOF
   TEMPLATE="${BASE_DIR}/scripts/config_template.ini"
 
   # Create the plot config from the template
-  PLOT_CONFIG="${BUILD_DIR}/${SCM_DIR}/scm/${run_dir}/${scm_case}.ini"
+  if [ ! -d ${BASE_DIR}/scm_plots ]; then
+    mkdir -p ${BASE_DIR}/scm_plots
+  fi
+  PLOT_CONFIG="${BASE_DIR}/scm_plots/${scm_case}.ini"
   envsubst < "$TEMPLATE" > "$PLOT_CONFIG"
   echo "Created plot config: $PLOT_CONFIG"
 
-  # Move to the run directory to run the plots
-  cd ${BUILD_DIR}/${SCM_DIR}/scm/${run_dir}
+  # Move to the plot directory to run the plots
+  cd ${BASE_DIR}/scm_plots
 
   # Copy python plotting script to run directory
-  cp ${SCRIPT_DIR}/scm_analysis.py ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts
-  cp ${SCRIPT_DIR}/scm_read_obs.py ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts
+  cp ${SCRIPT_DIR}/scm_analysis.py ${BASE_DIR}/scm_plots
+  cp ${SCRIPT_DIR}/scm_read_obs.py ${BASE_DIR}/scm_plots
+  cp ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts/scm_plotting_routines.py ${BASE_DIR}/scm_plots
+  cp ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/scm_plots
+  cp ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
 
   # Run the python plotting script
-  python3 ${BUILD_DIR}/${SCM_DIR}/scm/${run_dir}/scm_analysis.py $PLOT_CONFIG
+  python3 ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG
 
 done
