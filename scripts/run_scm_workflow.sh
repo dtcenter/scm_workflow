@@ -1,17 +1,16 @@
 #!/bin/sh
 
-# Add logging capability
 # Only checkout SCM data if it is needed for the requested suites?
 # Check if FIX_DATA_DIR is empty
 # Add more user options: column area, timestep, vert levs
 # Check if build was configured with all requested suites
 
 # List of suites to test
-SUITE_LIST='SCM_GFS_v17_p8_ugwpv1 SCM_GFS_v16'
+SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
 # List of cases to test - note - forcing data for each case may be in separate directories
 # Currently supported: twpice, MAGIC_LEG15A, 
-CASE_LIST='MAGIC_LEG15A twpice'
+CASE_LIST='MAGIC_LEG15A'
 
 # Platform (Hera/Derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
@@ -23,12 +22,12 @@ GIT_BRANCH='main'
 SCM_DIR='ccpp-scm'
 
 # Build switches
-make_build='True'
+make_build='False'
 build_32bit='False'
 
 # Plotting options
 PLOT_DIR='plots_test'
-OBS_COMPARE='False'
+OBS_COMPARE='True'
 
 ###################################################
 # Build SCM for the platform and compilers selected
@@ -146,7 +145,8 @@ for scm_case in $CASE_LIST; do
     CASE_CONFIG_DIR=${BUILD_DIR}/${SCM_DIR}/scm/etc/case_config
     CASE_NML=${CASE_CONFIG_DIR}/${scm_case}.nml
 
-    # If the namelist does not exist create it
+    # Export variables needed by case_config_template
+    export ${scm_case}
     if [ ! -f "$CASE_NML" ]; then
       echo "Case namelist missing: creating $CASE_NML"
       cat <<EOF > "$CASE_NML"
@@ -295,8 +295,12 @@ EOF
 
   START_TIME=$(echo "$TIME_INFO" | sed -n '1p')
   END_TIME=$(echo "$TIME_INFO" | sed -n '2p')
+  if [[ $scm_case == *"MAGIC_LEG15A"* ]]; then
+    START_TIME="2013, 7, 21, 0, 0"
+    END_TIME="2013, 7, 24, 23, 59"
+  fi
 
-  # Export variables needed for the plotting template
+  # Export variables needed for plot_config_template
   export CONFIG_DATASETS
   export CONFIG_LABELS
   export PLOT_DIR
@@ -306,14 +310,14 @@ EOF
   export END_TIME
 
   # Plot config template
-  TEMPLATE="${BASE_DIR}/scripts/config_template.ini"
+  PLOT_TEMPLATE="${BASE_DIR}/scripts/plot_config_template.ini"
 
   # Create the plot config from the template
   if [ ! -d ${BASE_DIR}/scm_plots ]; then
     mkdir -p ${BASE_DIR}/scm_plots
   fi
   PLOT_CONFIG="${BASE_DIR}/scm_plots/${scm_case}.ini"
-  envsubst < "$TEMPLATE" > "$PLOT_CONFIG"
+  envsubst < "$PLOT_TEMPLATE" > "$PLOT_CONFIG"
   echo "Created plot config: $PLOT_CONFIG"
 
   # Move to the plot directory to run the plots
