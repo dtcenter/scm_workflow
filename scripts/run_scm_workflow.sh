@@ -2,15 +2,27 @@
 
 # Only checkout SCM data if it is needed for the requested suites?
 # Check if FIX_DATA_DIR is empty
-# Add more user options: column area, timestep, vert levs
+# Add more user options: vert levs
 # Check if build was configured with all requested suites
-
-# List of suites to test
-SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
 # List of cases to test - note - forcing data for each case may be in separate directories
 # Currently supported: twpice, MAGIC_LEG15A, 
 CASE_LIST='MAGIC_LEG15A'
+
+# List of suites to test
+SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
+
+# List of column areas in m^2 - could also change to column dx in km (more user friendly?)
+#COLUMN_AREAS='1.45E8'
+COLUMN_AREAS='1.69E8 9E6'
+
+# List of time steps
+TIME_STEPS='300'
+PHYSICS_TIME_STEPS='150'
+
+# Array list of output frequencies (paired with each timestep)
+OUT_FREQS=(1)
+DIAG_FREQS=(1)
 
 # Platform (Hera/Derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
@@ -25,8 +37,14 @@ SCM_DIR='ccpp-scm'
 make_build='False'
 build_32bit='False'
 
+# Run option to skip existing runs or not
+rerun_cases='False'
+
+# Tag used for directory naming for the set of scm runs
+tag='test2'
+
 # Plotting options
-PLOT_DIR='plots_test'
+PLOT_DIR=plots_$tag
 OBS_COMPARE='True'
 
 ###################################################
@@ -124,7 +142,6 @@ ln -sf $FIX_DATA_DIR/* $BUILD_DIR/$SCM_DIR/scm/data
 # Run through list of cases
 for scm_case in $CASE_LIST; do
 
-  echo ${scm_case}
   # Reset each loop
   CASE_DATA_DIR=""
 
@@ -140,28 +157,11 @@ for scm_case in $CASE_LIST; do
     case_prefix=$(echo ${scm_case} | cut -d'_' -f1)
     case_suffix=$(echo ${scm_case} | cut -d'_' -f2)
     CASE_DATA_DIR=${BASE_DIR}/DEPHY-SCM/${case_prefix}/${case_suffix}
-
-    # Check if case namelist exists
-    CASE_CONFIG_DIR=${BUILD_DIR}/${SCM_DIR}/scm/etc/case_config
-    CASE_NML=${CASE_CONFIG_DIR}/${scm_case}.nml
-
-    # Export variables needed by case_config_template
-    export ${scm_case}
-    if [ ! -f "$CASE_NML" ]; then
-      echo "Case namelist missing: creating $CASE_NML"
-      cat <<EOF > "$CASE_NML"
-\$case_config
-case_name = '${scm_case}',
-input_type = 1
-lsm_ics = .false.,
-do_spinup = .false.,
-spinup_timesteps = 0,
-reference_profile_choice = 2,
-column_area = 1.45E8,
-\$end
-EOF
-    fi
   fi
+
+  # Case config location
+  CASE_CONFIG_DIR=${BUILD_DIR}/${SCM_DIR}/scm/etc/case_config
+  CASE_NML=${CASE_CONFIG_DIR}/${scm_case}.nml
 
   # For storing case/suite lists 
   CONFIG_DATASETS=""
@@ -181,70 +181,76 @@ EOF
 
   # Run through list of suites
   for suite in $SUITE_LIST; do
-    echo ${suite}
 
-    # Default output naming
-    run_dir="run_${scm_case}_${suite}"
-    out_dir="output_${scm_case}_${suite}/output.nc"
-    OUTPUT_NC="${BUILD_DIR}/${SCM_DIR}/scm/${run_dir}/${out_dir}"
-    CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_NC}, "
-    CONFIG_LABELS="${CONFIG_LABELS}${scm_case}_${suite}, "
+    # Run through list of column areas
+    for column_area in $COLUMN_AREAS; do
+      column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
 
+      n=0
+      for timestep in $TIME_STEPS; do
 
-    # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
-    cd "$BUILD_DIR/$SCM_DIR/scm/bin"
-    RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} --run_dir ${BUILD_DIR}/${SCM_DIR}/scm/${run_dir} -v"
-    if [ -n "${CASE_DATA_DIR}" ]; then
-      RUN_COMMAND="${RUN_COMMAND} --case_data_dir ${CASE_DATA_DIR}"
-    fi
+        out_freq="${OUT_FREQS[n]}"
+        diag_freq="${DIAG_FREQS[n]}"
 
-    # Define output directory and output file
-    OUTPUT_DIR="${BUILD_DIR}/${SCM_DIR}/scm/${run_dir}/output_${scm_case}_${suite}"
-    OUTPUT_PATH="${OUTPUT_DIR}/output.nc"
+        # Export variables needed by case_config_template
+        export scm_case
+        export column_area
 
-    # Check if previous run exists and output.nc is non-zero
-    if [ -d "$OUTPUT_DIR" ] && [ -s "$OUTPUT_PATH" ]; then
-      echo "===================================================="
-      echo " Existing SCM output detected:"
-      echo "   File      : $OUTPUT_PATH"
-      echo "===================================================="
-      printf "Overwrite and rerun case? (y/n):"
-      read -r response
+        NML_TEMPLATE="${BASE_DIR}/scripts/case_config_template.nml"
+        envsubst '${scm_case} ${column_area}' < "$NML_TEMPLATE" > "$CASE_NML"
+        echo "Created case config: $CASE_NML"
 
-      case "$response" in
-        [Yy]* )
-          echo "Removing existing output directory before rerun..."
-          rm -rf "$OUTPUT_DIR"
-          ;;
-        [Nn]* )
-          echo "Skipping rerun for ${scm_case}/${suite}."
-          continue
-          ;;
-        * )
-          echo "Invalid response — skipping by default."
-          continue
-          ;;
-      esac
+        # Loop through physics time steps
+        for dti in $PHYSICS_TIME_STEPS; do
 
-    elif [ -d "$OUTPUT_DIR" ] && [ ! -s "$OUTPUT_PATH" ]; then
-      echo ""
-      echo "WARNING: Output directory exists but output.nc missing or zero size:"
-      echo "  $OUTPUT_PATH"
-      echo "Directory will be removed and rerun will proceed."
-      rm -rf "$OUTPUT_DIR"
-    fi
+	  # Change the dt_inner in the physics namelist
+          
 
-    # Unique batch file for each submission
-    batch_file=$(mktemp "${SCRIPT_DIR}/generated_batch_XXXXXX.sh")
+          # Default output naming
+          run_dir="run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s"
+          run_path="${run_dir}/output_${scm_case}_${suite}/output.nc"
+          OUTPUT_DIR="${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}"
+          OUTPUT_PATH="${OUTPUT_DIR}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
+          CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_PATH}, "
+          CONFIG_LABELS="${CONFIG_LABELS}${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s, "
 
-    # Submit jobs for each case/suite combo
-    sed "s~RUN_COMMAND~${RUN_COMMAND}~g" $SCRIPT_DIR/batch_template > "$batch_file"
-    job_id=$(sbatch "$batch_file" | awk '{print $4}')
-    echo "Submitted job $job_id with command: $RUN_COMMAND"
-    RUNNING=true
+          # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
+          cd "$BUILD_DIR/$SCM_DIR/scm/bin"
+          RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir ${BUILD_DIR}/${SCM_DIR}/scm/${run_dir} -v"
+	  echo $RUN_COMMAND
+          if [ -n "${CASE_DATA_DIR}" ]; then
+            RUN_COMMAND="${RUN_COMMAND} --case_data_dir ${CASE_DATA_DIR}"
+          fi
 
-    JOB_IDS+=("$job_id")
-    BATCH_FILES+=("$batch_file")
+          # If directory exists and output.nc are non-zero, check if user wants to rerun cases
+          if [ -d "${OUTPUT_DIR}" ] && [ -s "$OUTPUT_PATH" ]; then
+            if [[ ${rerun_cases} == "False" ]]; then
+              echo "Skipping existing run: ${run_dir}"
+            elif [[ ${rerun_cases} == "True" ]]; then
+              echo "Overwriting existing run: ${run_dir}"
+              rm -rf "${BUILD_DIR}/${SCM_DIR}/scm/${run_dir}"
+            fi
+          fi
+
+          # Run all cases that do not exist
+          if [ ! -d "${OUTPUT_DIR}" ] || [ ! -s "$OUTPUT_PATH" ]; then
+	    # Unique batch file for each submission
+            batch_file=$(mktemp "${SCRIPT_DIR}/generated_batch_XXXXXX.sh")
+
+            # Submit jobs for each case/suite combo
+            sed "s~RUN_COMMAND~${RUN_COMMAND}~g" $SCRIPT_DIR/batch_template > "$batch_file"
+            job_id=$(sbatch "$batch_file" | awk '{print $4}')
+            echo "Submitted job $job_id with command: $RUN_COMMAND"
+            RUNNING=true
+	    sleep 10
+
+            JOB_IDS+=("$job_id")
+            BATCH_FILES+=("$batch_file")
+          fi
+        done
+      done
+      n=$((n+1))
+    done
   done
 
   # Wait for jobs to finish before plotting
@@ -262,6 +268,24 @@ EOF
     rm -f "$f"
   done
 
+  # Move all runs to a general run directory
+  for suite in $SUITE_LIST; do
+    if [[ ! -d "${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}" ]]; then
+      mkdir -p ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
+    fi
+    for column_area in $COLUMN_AREAS; do
+      for timestep in $TIME_STEPS; do
+        for dti in $PHYSICS_TIME_STEP; do
+          column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
+          cp ${BUILD_DIR}/${SCM_DIR}/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
+          cp ${BUILD_DIR}/${SCM_DIR}/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
+	  # Decide whether to remove the original run directory
+          #rm -rf ${BUILD_DIR}/${SCM_DIR}/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
+        done
+      done
+    done
+  done
+
   ######################
   # Run plotting scripts
   ######################
@@ -272,7 +296,7 @@ TIME_INFO=$(python3 - <<EOF
 from netCDF4 import Dataset
 from datetime import datetime, timedelta
 
-f = Dataset("${OUTPUT_NC}")
+f = Dataset("${OUTPUT_PATH}")
 
 y = int(f.variables["init_year"][:])
 m = int(f.variables["init_month"][:])

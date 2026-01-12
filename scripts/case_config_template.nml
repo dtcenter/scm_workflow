@@ -1,0 +1,9 @@
+$case_config
+case_name = '${scm_case}',
+input_type = 1
+lsm_ics = .false.,
+do_spinup = .false.,
+spinup_timesteps = 0,
+reference_profile_choice = 2,
+column_area = ${column_area},
+$end

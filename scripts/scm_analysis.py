@@ -28,7 +28,7 @@ g = 9.81
 missing_value = -999
 missing_soil_levels = 4
 
-plot_ext = '.pdf' #.pdf, .eps, .ps, .png (.png is fastest, but raster)
+plot_ext = '.png' #.pdf, .eps, .ps, .png (.png is fastest, but raster)
 
 reload(spr)
 reload(sro)
@@ -1151,6 +1151,8 @@ if(plot_ind_datasets):
 
                         #isolate the subset of the obs data for the current time slice
                         obs_data_time_slice = obs_data[obs_dict['time_slice_indices'][j][0]:obs_dict['time_slice_indices'][j][1]]
+                        print(obs_dict['time_slice_indices'][j][0])
+                        print(obs_dict['time_slice_indices'][j][1])
 
                         #print obs_dict['time_slice_indices'][j][0], obs_dict['time_slice_indices'][j][1]
 
@@ -1181,6 +1183,7 @@ if(plot_ind_datasets):
                                 spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color', color_index=i, conversion_factor=conversion_factor)
                         else:
                             obs_time_time_slice = obs_dict['time_h'][obs_dict['time_slice_indices'][j][0]:obs_dict['time_slice_indices'][j][1]]
+                            print(obs_time_time_slice)
                             spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color', color_index=i, conversion_factor=conversion_factor)
                     else:
                         spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, line_type='color', color_index=i, conversion_factor=conversion_factor)

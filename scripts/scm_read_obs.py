@@ -94,6 +94,7 @@ def read_twpice_obs(obs_file, time_slices, date):
         end_date_index = np.where(obs_date == end_date)[0][0]
         obs_time_slice_indices.append([start_date_index, end_date_index])
 
+
     #find the index corresponding to the start of the simulations
     obs_start_index = np.where(obs_date == date[0][0])[0]
     obs_time = obs_time - obs_time[obs_start_index]
@@ -171,21 +172,19 @@ def read_MAGIC_obs(obs_file, time_slices, date):
         obs_date.append(datetime.datetime(obs_year[i], obs_month[i], obs_day[i], obs_hour[i], obs_minute[i], 0, 0))
     obs_date = np.array(obs_date)
 
-    print(obs_date)
 
     for time_slice in time_slices:
         start_date = datetime.datetime(time_slices[time_slice]['start'][0], time_slices[time_slice]['start'][1],time_slices[time_slice]['start'][2], time_slices[time_slice]['start'][3], time_slices[time_slice]['start'][4])
         end_date = datetime.datetime(time_slices[time_slice]['end'][0], time_slices[time_slice]['end'][1],time_slices[time_slice]['end'][2], time_slices[time_slice]['end'][3], time_slices[time_slice]['end'][4])
-        print(start_date, end_date)
         start_date_index = np.where(obs_date == start_date)[0][0]
         end_date_index = np.where(obs_date == end_date)[0][0]
         obs_time_slice_indices.append([start_date_index, end_date_index])
 
-    print(start_date, end_date, start_date_index, end_date_index, obs_date[start_date_index], obs_date[end_date_index])
-
     #find the index corresponding to the start of the simulations
-    obs_start_index = np.where(obs_date == date[0][0])[0]
-    obs_time = obs_time - obs_time[obs_start_index]
+    # Here this is hard-coded to grab the 7th index for MAGIC since there are no obs at the sim start
+    #obs_start_index = np.where(obs_date == date[0][7])[0]
+    #obs_time = obs_time - obs_time[obs_start_index]
+    #print(obs_time)
 
     obs_pres_l = obs_fid.variables['lev'][:]*100.0 #pressure levels in mb
 
@@ -238,7 +237,7 @@ def read_MAGIC_obs(obs_file, time_slices, date):
       'tprcp_rate_accum': obs_precip, 'qv': obs_q, 'rh': obs_rh, 'rh_500': obs_rh_500,
       #'lw_up_TOA_tot': obs_lw_net_toa, 'rad_net_srf': obs_rad_net_srf, 'sw_dn_TOA_tot': obs_sw_dn_toa,
       #'lw_dn_sfc_tot': obs_lw_dn_srf, 'sw_dn_sfc_tot': obs_sw_dn_srf, 'lwp': obs_lwp,
-      'lw_dn_sfc_tot': obs_lw_dn_srf, 'sw_dn_sfc_tot': obs_sw_dn_srf, 'lwp': obs_lwp}
+      'sfc_dwn_lw': obs_lw_dn_srf, 'sfc_dwn_sw': obs_sw_dn_srf, 'lwp': obs_lwp}
       #'T_force_tend': obs_T_forcing, 'qv_force_tend': obs_q_forcing}
 
     obs_fid.close()
