@@ -1,20 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
 # Only checkout SCM data if it is needed for the requested suites?
 # Check if FIX_DATA_DIR is empty
 # Add more user options: vert levs
 # Check if build was configured with all requested suites
+# If only 1 item in a list add as caption, otherwise add as legend
 
 # List of cases to test - note - forcing data for each case may be in separate directories
-# Currently supported: twpice, MAGIC_LEG15A, 
+# Currently supported: twpice, MAGIC_LEG15A 
 CASE_LIST='MAGIC_LEG15A'
 
 # List of suites to test
-SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
+SUITE_LIST='SCM_GFS_v16 SCM_GFS_v17_p8_ugwpv1'
 
 # List of column areas in m^2 - could also change to column dx in km (more user friendly?)
-#COLUMN_AREAS='1.45E8'
-COLUMN_AREAS='1.69E8 9E6'
+COLUMN_AREAS='1.45E8'
+#COLUMN_AREAS='1.69E8'
 
 # List of time steps
 TIME_STEPS='300'
@@ -26,26 +27,37 @@ DIAG_FREQS=(1)
 
 # Platform (Hera/Derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
-COMPILER='intel'
+COMPILER='gnu'
 
-# Github repo
+# Flag for type of SCM repo to use (github/local)
+scm_type='github'
+
+# If using SMC Github repo, supply the url and branch
 GIT_URL='https://github.com/NCAR/ccpp-scm.git'
 GIT_BRANCH='main'
-SCM_DIR='ccpp-scm'
+
+# If using local SCM repo, supply the directory path
+local_scm_dir='/path/to/ccpp-scm'
 
 # Build switches
-make_build='False'
+make_build='True'
 build_32bit='False'
 
 # Run option to skip existing runs or not
 rerun_cases='False'
 
 # Tag used for directory naming for the set of scm runs
-tag='test2'
+tag='test'
 
 # Plotting options
 PLOT_DIR=plots_$tag
-OBS_COMPARE='True'
+OBS_COMPARE='False'
+
+# Option to compare to a local baseline(s)
+# Comma-separated if appending more than one baseline
+plot_cmp_baseline='False'
+baseline_path='/path/to/output.nc'
+baseline_label='Baseline'
 
 ###################################################
 # Build SCM for the platform and compilers selected
@@ -56,19 +68,19 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BASE_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR=$BASE_DIR/scm_builds
 
-# Load the SCM environment
-MODULE_PATH="$BUILD_DIR/$SCM_DIR/scm/etc/modules"
-module use "$MODULE_PATH"
-module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
-sleep 2
+if [ $scm_type == 'github' ]; then
+  SCM_DIR=$BUILD_DIR/ccpp-scm-$tag
+elif [ $scm_type == 'local' ]; then
+  SCM_DIR=$local_scm_dir
+fi
 
 if [ $make_build == 'True' ]; then
   do_build="yes"
 
-  # Check if the build exists
-  if [ -d "$BUILD_DIR/$SCM_DIR" ]; then
-    echo "Build directory already exists:"
-    echo " $BUILD_DIR/$SCM_DIR"
+  # Check if the build executable exists
+  if [ -f "$SCM_DIR/scm/bin/scm" ]; then
+    echo "Build already exists:"
+    echo " $SCM_DIR/scm/bin/scm"
 
     # If the build exists, promt user whether to rebuild or skip build
     printf "Overwrite and rebuild? (y/n): "
@@ -77,7 +89,7 @@ if [ $make_build == 'True' ]; then
     case "$response" in
         [Yy]* )
             echo "Removing existing build."
-            rm -rf "$BUILD_DIR/$SCM_DIR/scm/bin"
+            rm -rf "$SCM_DIR/scm/bin"
             ;;
         [Nn]* )
             echo "Existing build preserved. Skipping build."
@@ -93,16 +105,24 @@ if [ $make_build == 'True' ]; then
   # Build the ccpp-scm if requested
   if [ "$do_build" = "yes" ]; then
 
-    # Check if the scm_builds directory exists. If not create it
-    if [ ! -d "$BUILD_DIR/$SCM_DIR" ]; then
-      if [ ! -d "$BUILD_DIR" ]; then
-        mkdir -p $BUILD_DIR
+    # Check if the github scm_builds directory exists. If not create it
+    if [ $scm_type == 'github' ]; then
+      if [ ! -d "$SCM_DIR" ]; then
+         if [ ! -d "$BUILD_DIR" ]; then
+          mkdir -p $BUILD_DIR
+        fi
+        cd $BUILD_DIR
+        git clone --recursive -b $GIT_BRANCH $GIT_URL ccpp-scm-$tag
       fi
-      cd $BUILD_DIR
-      git clone --recursive -b $GIT_BRANCH $GIT_URL $SCM_DIR
     fi
 
-    cd $BUILD_DIR/$SCM_DIR/scm && mkdir bin && cd bin
+    # Load the SCM environment
+    MODULE_PATH="$SCM_DIR/scm/etc/modules"
+    module use "$MODULE_PATH"
+    module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
+    sleep 2
+
+    cd $SCM_DIR/scm && mkdir bin && cd bin
 
     # Build with single precision if requested
     if [ $build_32bit == 'True' ]; then
@@ -121,7 +141,7 @@ FIX_DATA_DIR=$BASE_DIR/fix_data
 
 if [ ! -d $FIX_DATA_DIR ]; then
   mkdir -p $FIX_DATA_DIR
-  cd $BUILD_DIR/$SCM_DIR
+  cd $SCM_DIR
   ./contrib/get_all_static_data.sh
   ./contrib/get_thompson_tables.sh
   ./contrib/get_tempo_data.sh
@@ -133,7 +153,7 @@ if [ ! -d $FIX_DATA_DIR ]; then
      scm/data/raw_case_input \
      $FIX_DATA_DIR
 fi
-ln -sf $FIX_DATA_DIR/* $BUILD_DIR/$SCM_DIR/scm/data
+ln -sf $FIX_DATA_DIR/* $SCM_DIR/scm/data
 
 ############################################################
 # Run cases
@@ -160,7 +180,7 @@ for scm_case in $CASE_LIST; do
   fi
 
   # Case config location
-  CASE_CONFIG_DIR=${BUILD_DIR}/${SCM_DIR}/scm/etc/case_config
+  CASE_CONFIG_DIR=$SCM_DIR/scm/etc/case_config
   CASE_NML=${CASE_CONFIG_DIR}/${scm_case}.nml
 
   # For storing case/suite lists 
@@ -215,8 +235,8 @@ for scm_case in $CASE_LIST; do
           CONFIG_LABELS="${CONFIG_LABELS}${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s, "
 
           # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
-          cd "$BUILD_DIR/$SCM_DIR/scm/bin"
-          RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir ${BUILD_DIR}/${SCM_DIR}/scm/${run_dir} -v"
+          cd "$SCM_DIR/scm/bin"
+          RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
 	  echo $RUN_COMMAND
           if [ -n "${CASE_DATA_DIR}" ]; then
             RUN_COMMAND="${RUN_COMMAND} --case_data_dir ${CASE_DATA_DIR}"
@@ -228,7 +248,7 @@ for scm_case in $CASE_LIST; do
               echo "Skipping existing run: ${run_dir}"
             elif [[ ${rerun_cases} == "True" ]]; then
               echo "Overwriting existing run: ${run_dir}"
-              rm -rf "${BUILD_DIR}/${SCM_DIR}/scm/${run_dir}"
+              rm -rf "$SCM_DIR/scm/${run_dir}"
             fi
           fi
 
@@ -275,12 +295,12 @@ for scm_case in $CASE_LIST; do
     fi
     for column_area in $COLUMN_AREAS; do
       for timestep in $TIME_STEPS; do
-        for dti in $PHYSICS_TIME_STEP; do
+        for dti in $PHYSICS_TIME_STEPS; do
           column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
-          cp ${BUILD_DIR}/${SCM_DIR}/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
-          cp ${BUILD_DIR}/${SCM_DIR}/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
+          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
+          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
 	  # Decide whether to remove the original run directory
-          #rm -rf ${BUILD_DIR}/${SCM_DIR}/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
+          #rm -rf $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
         done
       done
     done
@@ -292,6 +312,7 @@ for scm_case in $CASE_LIST; do
 
   # Invoke python to get start/end date from case output to pass to the plot config
   # This should be the same for all configs run for the same case.
+  #this should be modified to get the common start date from obs and scm?
 TIME_INFO=$(python3 - <<EOF
 from netCDF4 import Dataset
 from datetime import datetime, timedelta
@@ -322,8 +343,16 @@ EOF
   if [[ $scm_case == *"MAGIC_LEG15A"* ]]; then
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
+  elif [[ $scm_case == *"twpice"* ]]; then
+    START_TIME="2006, 1, 20, 0"
+    END_TIME="2006, 1, 23, 0"
   fi
 
+  if [ $plot_cmp_baseline == 'True' ]; then
+    CONFIG_DATASETS=$baseline_path${CONFIG_DATASETS}
+    CONFIG_LABELS=$baseline_label${CONFIG_LABELS}
+  fi
+    
   # Export variables needed for plot_config_template
   export CONFIG_DATASETS
   export CONFIG_LABELS
@@ -350,9 +379,9 @@ EOF
   # Copy python plotting script to run directory
   cp ${SCRIPT_DIR}/scm_analysis.py ${BASE_DIR}/scm_plots
   cp ${SCRIPT_DIR}/scm_read_obs.py ${BASE_DIR}/scm_plots
-  cp ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts/scm_plotting_routines.py ${BASE_DIR}/scm_plots
-  cp ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/scm_plots
-  cp ${BUILD_DIR}/${SCM_DIR}/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
+  cp $SCM_DIR/scm/etc/scripts/scm_plotting_routines.py ${BASE_DIR}/scm_plots
+  cp $SCM_DIR/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/scm_plots
+  cp $SCM_DIR/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
 
   # Run the python plotting script
   python3 ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG

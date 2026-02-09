@@ -1151,11 +1151,6 @@ if(plot_ind_datasets):
 
                         #isolate the subset of the obs data for the current time slice
                         obs_data_time_slice = obs_data[obs_dict['time_slice_indices'][j][0]:obs_dict['time_slice_indices'][j][1]]
-                        print(obs_dict['time_slice_indices'][j][0])
-                        print(obs_dict['time_slice_indices'][j][1])
-
-                        #print obs_dict['time_slice_indices'][j][0], obs_dict['time_slice_indices'][j][1]
-
                         if time_series_resample:
                             #determine whether obs data frequency matches model output frequency
                             obs_delta_seconds = obs_dict['time'][obs_dict['time_slice_indices'][j][1]] - obs_dict['time'][obs_dict['time_slice_indices'][j][1]-1]
@@ -1183,7 +1178,6 @@ if(plot_ind_datasets):
                                 spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color', color_index=i, conversion_factor=conversion_factor)
                         else:
                             obs_time_time_slice = obs_dict['time_h'][obs_dict['time_slice_indices'][j][0]:obs_dict['time_slice_indices'][j][1]]
-                            print(obs_time_time_slice)
                             spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color', color_index=i, conversion_factor=conversion_factor)
                     else:
                         spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, line_type='color', color_index=i, conversion_factor=conversion_factor)
@@ -1476,6 +1470,7 @@ if(len(scm_datasets) > 1):
                             for i in range(len(scm_datasets)):
                                 interp_values = np.flipud(np.interp(np.flipud(obs_vert_axis), np.flipud(vert_axis), np.flipud(mean_data[i])))
                                 bias_data.append(interp_values - obs_mean_data)
+                            print(label)
                             spr.plot_profile_multi(obs_vert_axis, bias_data, scm_datasets_labels, label + ' bias', vert_axis_label_pm, comp_dir + '/profiles_bias_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color', zero_line=True, conversion_factor=conversion_factor)
 
                     else:
