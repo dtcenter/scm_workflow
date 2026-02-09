@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCM Case Comparison Viewer</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        display: flex;
+        height: 100vh;
+    }
+
+    /* Sidebar styling */
+    #sidebar {
+        width: 270px;
+        background-color: #2f3e46;
+        color: #ffffff;
+        padding: 20px;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        overflow-y: auto;
+    }
+
+    #sidebar h2 {
+        margin-top: 0;
+        font-size: 20px;
+        color: #a8dadc;
+    }
+
+    #sidebar label {
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    #sidebar select {
+        width: 100%;
+        font-size: 16px;
+        padding: 5px;
+        margin-top: 8px;
+        border-radius: 4px;
+        border: none;
+    }
+
+    /* Hide sections until case is selected */
+    .case-section {
+        display: none;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    /* Main content area */
+    #main {
+        flex-grow: 1;
+        padding: 30px;
+        text-align: center;
+        overflow-y: auto;
+    }
+
+    #main h1 {
+        color: #333;
+    }
+
+    img {
+        margin-top: 30px;
+        max-width: 90%;
+        height: auto;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+    }
+</style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <h2>Case Selection</h2>
+
+        <!-- Case selection dropdown -->
+        <label for="caseSelect">Choose Case</label>
+        <select id="caseSelect" onchange="selectCase()">
+            <option value="">-- Select a case --</option>
+            <option value="mosaic">MOSAiC–AMPS C768</option>
+            <!-- Future cases can be added here -->
+        </select>
+
+        <!-- MOSAiC Case Section -->
+        <div id="mosaicSection" class="case-section">
+            <h2>Figure Selection</h2>
+
+            <!-- Mean profiles dropdown -->
+            <label for="meanSelect">Mean Profiles</label>
+            <select id="meanSelect" onchange="updateFigure('mean')">
+                <option value="">-- Select a mean profile --</option>
+                <option value="../../scm_plots/plots_test/comp/active/profiles_mean_T.png">Temperature</option>
+                <option value="../../scm_plots/plots_test/comp/active/profiles_mean_qv.png">Qv</option>
+            </select>
+
+            <!-- Bias profiles dropdown -->
+            <label for="biasSelect">Bias Profiles</label>
+            <select id="biasSelect" onchange="updateFigure('bias')">
+                <option value="">-- Select a bias profile --</option>
+                <option value="../../scm_plots/plots_test/comp/active/profiles_bias_T.png">Temperature</option>
+                <option value="../../scm_plots/plots_test/comp/active/profiles_bias_qv.png">Qv</option>
+            </select>
+
+            <!-- Timeseries dropdown -->
+            <label for="tsSelect">Timeseries</label>
+            <select id="tsSelect" onchange="updateFigure('ts')">
+                <option value="">-- Select a timeseries --</option>
+                <option value="../../scm_plots/plots_test/comp/active/time_series_lhf.png">LHF</option>
+                <option value="../../scm_plots/plots_test/comp/active/time_series_shf.png">SHF</option>
+                <option value="../../scm_plots/plots_test/comp/active/time_series_tprcp_rate_inst.png">Precip Rate</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div id="main">
+        <h1>SCM Case Comparison Viewer</h1>
+        <img id="figureDisplay" src="" alt="Select a figure to display">
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function selectCase() {
+            const caseValue = document.getElementById("caseSelect").value;
+
+            // Hide all case sections
+            const allSections = document.getElementsByClassName("case-section");
+            for (let sec of allSections) {
+                sec.style.display = "none";
+            }
+
+            // Show the selected case section
+            if (caseValue === "mosaic") {
+                document.getElementById("mosaicSection").style.display = "block";
+            }
+
+            // Clear the current image
+            document.getElementById("figureDisplay").src = "";
+        }
+
+        function updateFigure(type) {
+            let selectedPath = "";
+            const meanSel = document.getElementById("meanSelect");
+            const biasSel = document.getElementById("biasSelect");
+            const tsSel = document.getElementById("tsSelect");
+
+            if (type === "mean") {
+                selectedPath = meanSel.value;
+                biasSel.selectedIndex = 0;
+                tsSel.selectedIndex = 0;
+            } else if (type === "bias") {
+                selectedPath = biasSel.value;
+                meanSel.selectedIndex = 0;
+                tsSel.selectedIndex = 0;
+            } else if (type === "ts") {
+                selectedPath = tsSel.value;
+                meanSel.selectedIndex = 0;
+                biasSel.selectedIndex = 0;
+            }
+
+            const imgTag = document.getElementById("figureDisplay");
+            imgTag.src = selectedPath;
+        }
+    </script>
+
+</body>
+</html>
