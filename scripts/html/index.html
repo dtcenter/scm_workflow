@@ -49,7 +49,7 @@
     }
 
     /* Hide sections until case is selected */
-    .case-section {
+    .config-section {
         display: none;
         margin-top: 10px;
         width: 100%;
@@ -90,14 +90,14 @@
             <option value="">-- Select a case --</option>
         </select>
 
-        <!-- Case Section -->
-        <div id="mosaicSection" class="case-section">
-            <h2>Figure Selection</h2>
+        <!-- Config selection dropdowns -->
+        <div id="configSection" class="config-section">
+            <h2>Config Selection</h2>
 
-	<label for="configSelect">Configuration</label>
-        <select id="configSelect" onchange="clearFigure()">
-            <option value="">-- Select configuration --</option>
-        </select>
+	    <label for="configSelect">Configuration</label>
+            <select id="configSelect" onchange="clearFigure()">
+                <option value="">-- Select configuration --</option>
+            </select>
 
             <!-- Mean profiles dropdown -->
             <label for="meanSelect">Mean Profiles</label>
@@ -153,14 +153,14 @@
             const caseValue = document.getElementById("caseSelect").value;
             CURRENT_CASE = caseValue;
 
-            const allSections = document.getElementsByClassName("case-section");
+            const allSections = document.getElementsByClassName("config-section");
             for (let sec of allSections) {
                 sec.style.display = "none";
             }
 
             if (!caseValue) return;
 
-            document.getElementById("mosaicSection").style.display = "block";
+            document.getElementById("configSection").style.display = "block";
 
 	    populateConfigs(caseValue);
             populateFigures(caseValue);
