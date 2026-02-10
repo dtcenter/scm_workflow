@@ -99,23 +99,28 @@
                 <option value="">-- Select configuration --</option>
             </select>
 
-            <!-- Mean profiles dropdown -->
-            <label for="meanSelect">Mean Profiles</label>
-            <select id="meanSelect" onchange="updateFigure('mean')">
-                <option value="">-- Select a mean profile --</option>
-            </select>
+	    <!-- Figure selection dropdowns -->
+            <div id="figureSection" class="figure-section">
+                <h2>Figure Selection</h2>
 
-            <!-- Bias profiles dropdown -->
-            <label for="biasSelect">Bias Profiles</label>
-            <select id="biasSelect" onchange="updateFigure('bias')">
-                <option value="">-- Select a bias profile --</option>
-            </select>
+                <!-- Mean profiles dropdown -->
+                <label for="meanSelect">Mean Profiles</label>
+                <select id="meanSelect" onchange="updateFigure('mean')">
+                    <option value="">-- Select a mean profile --</option>
+                </select>
 
-            <!-- Timeseries dropdown -->
-            <label for="tsSelect">Timeseries</label>
-	    <select id="tsSelect" onchange="updateFigure('ts')">
-                <option value="">-- Select a timeseries --</option>
-            </select>
+                <!-- Bias profiles dropdown -->
+                <label for="biasSelect">Bias Profiles</label>
+                <select id="biasSelect" onchange="updateFigure('bias')">
+                    <option value="">-- Select a bias profile --</option>
+                </select>
+
+                <!-- Timeseries dropdown -->
+                <label for="tsSelect">Timeseries</label>
+	        <select id="tsSelect" onchange="updateFigure('ts')">
+                    <option value="">-- Select a timeseries --</option>
+                </select>
+	    </div>
         </div>
     </div>
 
