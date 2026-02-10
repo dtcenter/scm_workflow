@@ -100,25 +100,24 @@
             <label for="meanSelect">Mean Profiles</label>
             <select id="meanSelect" onchange="updateFigure('mean')">
                 <option value="">-- Select a mean profile --</option>
-                <option value="../../scm_plots/plots_test/comp/active/profiles_mean_T.png">Temperature</option>
-                <option value="../../scm_plots/plots_test/comp/active/profiles_mean_qv.png">Qv</option>
+                <option value="profiles_mean_T.png">Temperature</option>
+                <option value="profiles_mean_qv.png">Qv</option>
             </select>
 
             <!-- Bias profiles dropdown -->
             <label for="biasSelect">Bias Profiles</label>
             <select id="biasSelect" onchange="updateFigure('bias')">
                 <option value="">-- Select a bias profile --</option>
-                <option value="../../scm_plots/plots_test/comp/active/profiles_bias_T.png">Temperature</option>
-                <option value="../../scm_plots/plots_test/comp/active/profiles_bias_qv.png">Qv</option>
+                <option value="profiles_bias_T.png">Temperature</option>
+                <option value="profiles_bias_qv.png">Qv</option>
             </select>
 
             <!-- Timeseries dropdown -->
             <label for="tsSelect">Timeseries</label>
             <select id="tsSelect" onchange="updateFigure('ts')">
                 <option value="">-- Select a timeseries --</option>
-                <option value="../../scm_plots/plots_test/comp/active/time_series_lhf.png">LHF</option>
-                <option value="../../scm_plots/plots_test/comp/active/time_series_shf.png">SHF</option>
-                <option value="../../scm_plots/plots_test/comp/active/time_series_tprcp_rate_accum.png">Precip Rate</option>
+                <option value="time_series_lhf.png">LHF</option>
+                <option value="time_series_shf.png">SHF</option>
             </select>
         </div>
     </div>
@@ -131,6 +130,8 @@
 
     <!-- JavaScript -->
     <script>
+    const BASE_PLOT_DIR = "scm_plots/plots_test";
+    const RUN_DIR = "MAGIC_LEG15A_SCM_GFS_v16_area12.04km_dt300s_dti150s";
         function selectCase() {
             const caseValue = document.getElementById("caseSelect").value;
 
@@ -170,7 +171,7 @@
             }
 
             const imgTag = document.getElementById("figureDisplay");
-            imgTag.src = selectedPath;
+            imgTag.src = `${BASE_PLOT_DIR}/${RUN_DIR}/active/${selectedPath}`;
         }
     </script>
 
