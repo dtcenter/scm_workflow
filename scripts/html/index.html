@@ -94,9 +94,9 @@
         <div id="configSection" class="config-section">
             <h2>Config Selection</h2>
 
-	    <label for="configSelect">Configuration</label>
+	    <label for="configSelect">Suite</label>
             <select id="configSelect" onchange="clearFigure()">
-                <option value="">-- Select configuration --</option>
+                <option value="">-- Select Suite --</option>
             </select>
 
 	    <!-- Figure selection dropdowns -->
@@ -177,8 +177,8 @@
             const configSelect = document.getElementById("configSelect");
             configSelect.innerHTML = `<option value="">-- Select configuration --</option>`;
 
-            const configs = CONFIG.cases[caseKey].configs;
-            for (const [cfgKey, cfgObj] of Object.entries(configs)) {
+            const suitess = CONFIG.cases[caseKey].suitess;
+            for (const [cfgKey, cfgObj] of Object.entries(suitess)) {
                 const opt = document.createElement("option");
                 opt.value = cfgKey;
                 opt.textContent = cfgObj.label;
