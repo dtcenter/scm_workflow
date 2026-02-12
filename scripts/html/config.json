@@ -14,6 +14,11 @@
           "label": "Comparison"
         }
       },
+      "areas": {
+        "MAGIC_LEG15A_SCM_GFS_v16_area12.04km_dt300s_dti150s": {
+          "label": "12.04km"
+        }
+      },
       "figures": {
         "mean": {
           "label": "Mean Profiles",

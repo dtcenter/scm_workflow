@@ -85,7 +85,7 @@
         <h2>Case Selection</h2>
 
         <!-- Case selection dropdown -->
-        <label for="caseSelect">Choose Case</label>
+        <label for="caseSelect">Case</label>
         <select id="caseSelect" onchange="selectCase()">
             <option value="">-- Select a case --</option>
         </select>
@@ -94,9 +94,14 @@
         <div id="configSection" class="config-section">
             <h2>Config Selection</h2>
 
-	    <label for="configSelect">Suite</label>
-            <select id="configSelect" onchange="clearFigure()">
+	    <label for="suiteSelect">Suite</label>
+            <select id="suiteSelect" onchange="clearFigure()">
                 <option value="">-- Select Suite --</option>
+            </select>
+
+	    <label for="areaSelect">Column Area</label>
+            <select id="areaSelect" onchange="clearFigure()">
+                <option value="">-- Select Area --</option>
             </select>
 
 	    <!-- Figure selection dropdowns -->
@@ -167,22 +172,35 @@
 
             document.getElementById("configSection").style.display = "block";
 
-	    populateConfigs(caseValue);
+	    populateSuites(caseValue);
             populateFigures(caseValue);
 
             clearFigure();
         }
 
-	function populateConfigs(caseKey) {
-            const configSelect = document.getElementById("configSelect");
-            configSelect.innerHTML = `<option value="">-- Select a suite --</option>`;
+	function populateSuites(caseKey) {
+            const suiteSelect = document.getElementById("suiteSelect");
+            suiteSelect.innerHTML = `<option value="">-- Select a suite --</option>`;
 
             const suites = CONFIG.cases[caseKey].suites;
             for (const [cfgKey, cfgObj] of Object.entries(suites)) {
                 const opt = document.createElement("option");
                 opt.value = cfgKey;
                 opt.textContent = cfgObj.label;
-                configSelect.appendChild(opt);
+                suiteSelect.appendChild(opt);
+            }
+        }
+
+	function populateAreas(caseKey) {
+            const areaSelect = document.getElementById("areaSelect");
+            areaSelect.innerHTML = `<option value="">-- Select column area --</option>`;
+
+            const areas = CONFIG.cases[caseKey].areas;
+            for (const [cfgKey, cfgObj] of Object.entries(areas)) {
+                const opt = document.createElement("option");
+                opt.value = cfgKey;
+                opt.textContent = cfgObj.label;
+                areaSelect.appendChild(opt);
             }
         }
 
@@ -227,7 +245,7 @@
                 biasSel.selectedIndex = 0;
             }
 
-            const run = document.getElementById("configSelect").value;
+            const run = document.getElementById("suiteSelect").value;
             if (!run) return;
 
             const imgTag = document.getElementById("figureDisplay");
