@@ -1,15 +1,14 @@
 {
   "base_plot_dir": "../../scm_plots/plots_test",
-
   "cases": {
-    "mosaic": {
-      "label": "MAGIC LEG15A",
-      "configs": {
+    "case": {
+      "label": "MAGIC_LEG15A",
+      "suites": {
         "MAGIC_LEG15A_SCM_GFS_v16_area12.04km_dt300s_dti150s": {
-          "label": "GFSv16"
+          "label": "GFS_v16"
         },
         "MAGIC_LEG15A_SCM_GFS_v17_p8_ugwpv1_area12.04km_dt300s_dti150s": {
-          "label": "GFSv17_UGWP"
+          "label": "GFS_v17_p8_ugwpv1"
         },
         "comp": {
           "label": "Comparison"
@@ -41,4 +40,3 @@
     }
   }
 }
-
