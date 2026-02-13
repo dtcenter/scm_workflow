@@ -24,24 +24,26 @@
             <h2>Config Selection</h2>
 
 	    <label for="suiteSelect">Suite</label>
-            <select id="suiteSelect" onchange="clearFigure()">
+            <select id="suiteSelect" onchange="configChanged()">
                 <option value="">-- Select Suite --</option>
             </select>
 
-	    <label for="areaSelect">Column Area</label>
-            <select id="areaSelect" onchange="clearFigure()">
-                <option value="">-- Select Area --</option>
-            </select>
+	    <div id="paramSection">
+	        <label for="areaSelect">Column Area</label>
+                <select id="areaSelect" onchange="configChanged()">
+                    <option value="">-- Select Area --</option>
+                </select>
 
-	    <label for="dtSelect">Time Step</label>
-            <select id="dtSelect" onchange="clearFigure()">
-                <option value="">-- Select Time Step --</option>
-            </select>
+	        <label for="dtSelect">Time Step</label>
+                <select id="dtSelect" onchange="configChanged()">
+                    <option value="">-- Select Time Step --</option>
+                </select>
 
-	    <label for="dtiSelect">Physics Time Step</label>
-            <select id="dtiSelect" onchange="clearFigure()">
-                <option value="">-- Select Physics Time Step --</option>
-            </select>
+	        <label for="dtiSelect">Physics Time Step</label>
+                <select id="dtiSelect" onchange="configChanged()">
+                    <option value="">-- Select Physics Time Step --</option>
+                </select>
+	    </div>
 
 	    <!-- Figure selection dropdowns -->
             <div id="figureSection" class="figure-section">
@@ -118,6 +120,7 @@
             populateFigures(caseValue);
 
             clearFigure();
+	    document.getElementById("figureSection").style.display = "none";
         }
 
 	function populateSuites(caseKey) {
@@ -170,6 +173,25 @@
                 opt.textContent = cfgObj.label;
                 dtiSelect.appendChild(opt);
             }
+        }
+
+	function checkConfigReady() {
+
+            const datasetDir = buildDatasetDir();
+            const figSection = document.getElementById("figureSection");
+
+            if (datasetDir) {
+                figSection.style.display = "block";
+            } else {
+                figSection.style.display = "none";
+                clearFigure();
+            }
+        
+        }
+
+        function configChanged() {
+            clearFigure();
+            checkConfigReady();
         }
 
         function buildDatasetDir() {

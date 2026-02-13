@@ -47,7 +47,13 @@ body {
 }
 
 /* Case sections (hidden by default) */
-.case-section {
+.config-section {
+    display: none;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.figure-section {
     display: none;
     margin-top: 10px;
     width: 100%;
