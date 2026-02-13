@@ -112,6 +112,8 @@
             if (!caseValue) return;
 
             document.getElementById("configSection").style.display = "block";
+            document.getElementById("paramSection").style.display = "none";
+            document.getElementById("figureSection").style.display = "none";
 
 	    populateSuites(caseValue);
             populateAreas(caseValue);
@@ -190,26 +192,54 @@
         }
 
         function configChanged() {
+
+            const suite = document.getElementById("suiteSelect").value;
+            const paramSection = document.getElementById("paramSection");
+            const figSection = document.getElementById("figureSection");
+
             clearFigure();
-            checkConfigReady();
+
+            if (!suite) {
+                paramSection.style.display = "none";
+                figSection.style.display = "none";
+                return;
+            }
+
+            if (suite === "comp") {
+                paramSection.style.display = "none";
+                figSection.style.display = "block";
+                return;
+            }
+
+            paramSection.style.display = "block";
+
+            const datasetDir = buildDatasetDir();
+
+            if (datasetDir) {
+                figSection.style.display = "block";
+            } else {
+                figSection.style.display = "none";
+            }
         }
 
         function buildDatasetDir() {
 
-            const caseName = document.getElementById("caseSelect").value;
+            const caseKey = document.getElementById("caseSelect").value;
             const suite = document.getElementById("suiteSelect").value;
+
+            if (!caseName || !suite) return null;
+
+            const caseName = CONFIG.cases[caseKey].label;
+
+            if (suite === "comp") {
+                return "comp";
+            }
+
             const area = document.getElementById("areaSelect").value;
             const dt = document.getElementById("dtSelect").value;
             const dti = document.getElementById("dtiSelect").value;
 
-            if (!caseName || !suite || !area || !dt || !dti) {
-                return null;
-            }
-
-            // Special case for comparison
-            if (suite === "comp") {
-                return "comp";
-            }
+            if (!area || !dt || !dti) return null;
 
             return `${caseName}_${suite}_area${area}km_dt${dt}s_dti${dti}s`;
         }
