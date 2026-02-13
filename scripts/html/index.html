@@ -104,6 +104,16 @@
                 <option value="">-- Select Area --</option>
             </select>
 
+	    <label for="dtSelect">Time Step</label>
+            <select id="dtSelect" onchange="clearFigure()">
+                <option value="">-- Select Time Step --</option>
+            </select>
+
+	    <label for="dtiSelect">Physics Time Step</label>
+            <select id="dtiSelect" onchange="clearFigure()">
+                <option value="">-- Select Physics Time Step --</option>
+            </select>
+
 	    <!-- Figure selection dropdowns -->
             <div id="figureSection" class="figure-section">
                 <h2>Figure Selection</h2>
@@ -204,6 +214,52 @@
             }
         }
 
+	function populateDts(caseKey) {
+            const dtSelect = document.getElementById("dtSelect");
+            dtSelect.innerHTML = `<option value="">-- Select time step --</option>`;
+
+            const dts = CONFIG.cases[caseKey].dts;
+            for (const [cfgKey, cfgObj] of Object.entries(dts)) {
+                const opt = document.createElement("option");
+                opt.value = cfgKey;
+                opt.textContent = cfgObj.label;
+                dtSelect.appendChild(opt);
+            }
+        }
+
+	function populateDtis(caseKey) {
+            const dtiSelect = document.getElementById("dtiSelect");
+            dtiSelect.innerHTML = `<option value="">-- Select physics time step --</option>`;
+
+            const dtis = CONFIG.cases[caseKey].dtis;
+            for (const [cfgKey, cfgObj] of Object.entries(dtis)) {
+                const opt = document.createElement("option");
+                opt.value = cfgKey;
+                opt.textContent = cfgObj.label;
+                dtiSelect.appendChild(opt);
+            }
+        }
+
+        function buildDatasetDir() {
+
+            const caseName = document.getElementById("caseSelect").value;
+            const suite = document.getElementById("suiteSelect").value;
+            const area = document.getElementById("areaSelect").value;
+            const dt = document.getElementById("dtSelect").value;
+            const dti = document.getElementById("dtiSelect").value;
+
+            if (!caseName || !suite || !area || !dt || !dti) {
+                return null;
+            }
+
+            // Special case for comparison
+            if (suite === "comp") {
+                return "comp";
+            }
+
+            return `${caseName}_${suite}_area${area}km_dt${dt}s_dti${dti}s`;
+        }
+
 	function populateFigures(caseKey) {
             const figs = CONFIG.cases[caseKey].figures;
 
@@ -245,12 +301,21 @@
                 biasSel.selectedIndex = 0;
             }
 
-            const run = document.getElementById("suiteSelect").value;
-            if (!run) return;
+            const datasetDir = buildDatasetDir();
+            if (!datasetDir || !selectedPath) return;
 
             const imgTag = document.getElementById("figureDisplay");
-			    imgTag.src = `${BASE_PLOT_DIR}/${run}/active/${selectedPath}`;
+
+            const imgPath = `${BASE_PLOT_DIR}/${datasetDir}/active/${selectedPath}`;
+
+            imgTag.onerror = function () {
+            imgTag.src = "";
+            console.warn("Plot not available for this configuration.");
+            };
+
+            imgTag.src = imgPath;
         }
+
 	function clearFigure() {
             document.getElementById("figureDisplay").src = "";
         }

@@ -4,10 +4,10 @@
     "case": {
       "label": "MAGIC_LEG15A",
       "suites": {
-        "MAGIC_LEG15A_SCM_GFS_v16_area12.04km_dt300s_dti150s": {
+        "SCM_GFS_v16": {
           "label": "GFS_v16"
         },
-        "MAGIC_LEG15A_SCM_GFS_v17_p8_ugwpv1_area12.04km_dt300s_dti150s": {
+        "SCM_GFS_v17_p8_ugwpv1": {
           "label": "GFS_v17_p8_ugwpv1"
         },
         "comp": {
@@ -15,8 +15,18 @@
         }
       },
       "areas": {
-        "MAGIC_LEG15A_SCM_GFS_v16_area12.04km_dt300s_dti150s": {
+        "area12.04km": {
           "label": "12.04km"
+        }
+      },
+      "dts": {
+        "dt300s": {
+          "label": "300s"
+        }
+      },
+      "dtis": {
+        "dti150s": {
+          "label": "150s"
         }
       },
       "figures": {
