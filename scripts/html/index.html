@@ -207,6 +207,8 @@
             dtSel.selectedIndex = 0;
             dtiSel.selectedIndex = 0;
 
+            resetFigureSelections();
+
             figSection.style.display = "none";
 
             if (!suite) {
@@ -313,6 +315,17 @@
             };
 
             imgTag.src = imgPath;
+        }
+
+        function resetFigureSelections() {
+
+            const meanSel = document.getElementById("meanSelect");
+            const biasSel = document.getElementById("biasSelect");
+            const tsSel   = document.getElementById("tsSelect");
+
+            meanSel.selectedIndex = 0;
+            biasSel.selectedIndex = 0;
+            tsSel.selectedIndex = 0;
         }
 
 	function clearFigure() {
