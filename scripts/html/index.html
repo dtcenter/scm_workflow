@@ -197,11 +197,20 @@
             const paramSection = document.getElementById("paramSection");
             const figSection = document.getElementById("figureSection");
 
-            clearFigure();
+            const areaSel = document.getElementById("areaSelect");
+            const dtSel = document.getElementById("dtSelect");
+            const dtiSel = document.getElementById("dtiSelect");
+
+	    clearFigure();
+
+            areaSel.selectedIndex = 0;
+            dtSel.selectedIndex = 0;
+            dtiSel.selectedIndex = 0;
+
+            figSection.style.display = "none";
 
             if (!suite) {
                 paramSection.style.display = "none";
-                figSection.style.display = "none";
                 return;
             }
 
@@ -217,8 +226,6 @@
 
             if (datasetDir) {
                 figSection.style.display = "block";
-            } else {
-                figSection.style.display = "none";
             }
         }
 
