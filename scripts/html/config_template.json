@@ -1,0 +1,23 @@
+{
+  "mean": {
+    "label": "Mean Profiles",
+    "files": {
+      "profiles_mean_T.png": "Temperature",
+      "profiles_mean_qv.png": "Qv"
+    }
+  },
+  "bias": {
+    "label": "Bias Profiles",
+    "files": {
+      "profiles_bias_T.png": "Temperature",
+      "profiles_bias_qv.png": "Qv"
+    }
+  },
+  "ts": {
+    "label": "Timeseries",
+    "files": {
+      "time_series_lhf.png": "LHF",
+      "time_series_shf.png": "SHF"
+    }
+  }
+}

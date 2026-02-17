@@ -313,33 +313,33 @@ for scm_case in $CASE_LIST; do
   # Invoke python to get start/end date from case output to pass to the plot config
   # This should be the same for all configs run for the same case.
   #this should be modified to get the common start date from obs and scm?
-TIME_INFO=$(python3 - <<EOF
-from netCDF4 import Dataset
-from datetime import datetime, timedelta
+#TIME_INFO=$(python3 - <<EOF
+#from netCDF4 import Dataset
+#from datetime import datetime, timedelta
 
-f = Dataset("${OUTPUT_PATH}")
+#f = Dataset("${OUTPUT_PATH}")
 
-y = int(f.variables["init_year"][:])
-m = int(f.variables["init_month"][:])
-d = int(f.variables["init_day"][:])
-H = int(f.variables["init_hour"][:])
-M = int(f.variables["init_minute"][:])
+#y = int(f.variables["init_year"][:])
+#m = int(f.variables["init_month"][:])
+#d = int(f.variables["init_day"][:])
+#H = int(f.variables["init_hour"][:])
+#M = int(f.variables["init_minute"][:])
 
-init_time = datetime(y, m, d, H, M)
+#init_time = datetime(y, m, d, H, M)
 
-t = f.variables["time_inst"][:]
-t = t[t < 1e30]
+#t = f.variables["time_inst"][:]
+#t = t[t < 1e30]
 
-start_time = init_time + timedelta(seconds=float(t[0]))
-end_time   = init_time + timedelta(seconds=float(t[-1]))
+#start_time = init_time + timedelta(seconds=float(t[0]))
+#end_time   = init_time + timedelta(seconds=float(t[-1]))
 
-print(f"{start_time.year}, {start_time.month}, {start_time.day}, {start_time.hour}")
-print(f"{end_time.year}, {end_time.month}, {end_time.day}, {end_time.hour}")
-EOF
-)
+#print(f"{start_time.year}, {start_time.month}, {start_time.day}, {start_time.hour}")
+#print(f"{end_time.year}, {end_time.month}, {end_time.day}, {end_time.hour}")
+#EOF
+#)
 
-  START_TIME=$(echo "$TIME_INFO" | sed -n '1p')
-  END_TIME=$(echo "$TIME_INFO" | sed -n '2p')
+#  START_TIME=$(echo "$TIME_INFO" | sed -n '1p')
+#  END_TIME=$(echo "$TIME_INFO" | sed -n '2p')
   if [[ $scm_case == *"MAGIC_LEG15A"* ]]; then
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
@@ -385,5 +385,17 @@ EOF
 
   # Run the python plotting script
   python3 ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG
+
+  plot_path="${BASE_DIR}/scm_plots/${PLOT_DIR}"
+  export scm_case
+  export plot_path
+
+  # Auto generate config.json for displaying images via html on github pages
+  JSON_TEMPLATE="${BASE_DIR}/scripts/html/config_template.json"
+  CONIFG_JSON="${plot_path}/config.json"
+  envsubst < "$JSON_TEMPLATE" > "$CONIFG_JSON"
+  echo "Created config.json"
+
+  python generate_config.py
 
 done
