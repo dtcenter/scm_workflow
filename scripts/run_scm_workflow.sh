@@ -199,6 +199,12 @@ for scm_case in $CASE_LIST; do
   JOB_IDS=()
   BATCH_FILES=()
 
+  # Load the SCM environment
+  MODULE_PATH="$SCM_DIR/scm/etc/modules"
+  module use "$MODULE_PATH"
+  module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
+  sleep 2
+
   # Run through list of suites
   for suite in $SUITE_LIST; do
 
@@ -384,18 +390,15 @@ for scm_case in $CASE_LIST; do
   cp $SCM_DIR/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
 
   # Run the python plotting script
-  python3 ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG
+  python ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG
 
+  #########################################
+  # Setup github pages for displaying plots
+  #########################################
   plot_path="${BASE_DIR}/scm_plots/${PLOT_DIR}"
   export scm_case
   export plot_path
 
-  # Auto generate config.json for displaying images via html on github pages
-  JSON_TEMPLATE="${BASE_DIR}/scripts/html/config_template.json"
-  CONIFG_JSON="${plot_path}/config.json"
-  envsubst < "$JSON_TEMPLATE" > "$CONIFG_JSON"
-  echo "Created config.json"
-
-  python generate_config.py
+  python ${SCRIPT_DIR}/html/generate_config.py
 
 done
