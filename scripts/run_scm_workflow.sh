@@ -205,6 +205,27 @@ for scm_case in $CASE_LIST; do
   module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
   sleep 2
 
+  # Build captions
+  read -ra SUITES <<< "$SUITE_LIST"
+  read -ra AREAS <<< "$COLUMN_AREAS"
+  read -ra DTS <<< "$TIME_STEPS"
+  read -ra DTIS <<< "$PHYSICS_TIME_STEPS"
+
+  if [ ${#SUITES[@]} -eq 1 ]; then
+    caption+=("Suite: ${SUITES[0]}")
+  fi
+  if [ ${#AREAS[@]} -eq 1 ]; then
+    area=$(awk -v a="${AREAS[0]}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
+    caption+=(" Area: ${area}km")
+  fi
+  if [ ${#DTS[@]} -eq 1 ]; then
+    caption+=(" dt: ${DTS[0]}s")
+  fi
+  if [ ${#DTIS[@]} -eq 1 ]; then
+    caption+=(" dti: ${DTIS[0]}s")
+  fi
+  captions=$(IFS=', '; echo "${caption[*]}")
+
   # Run through list of suites
   for suite in $SUITE_LIST; do
 
@@ -230,7 +251,22 @@ for scm_case in $CASE_LIST; do
         for dti in $PHYSICS_TIME_STEPS; do
 
 	  # Change the dt_inner in the physics namelist
-          
+ 
+          # Build labels
+	  label=()
+          if [ ${#SUITES[@]} -gt 1 ]; then
+            label+=("$suite")
+          fi
+	  if [ ${#AREAS[@]} -gt 1 ]; then
+            label+=("dx${column_area}km")
+          fi
+          if [ ${#DTS[@]} -gt 1 ]; then
+            label+=("dt${timestep}s")
+          fi
+          if [ ${#DTIS[@]} -gt 1 ]; then
+            label+=("dti${dti}s")
+          fi
+          label=$(IFS=', '; echo "${label[*]}")
 
           # Default output naming
           run_dir="run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s"
@@ -238,7 +274,8 @@ for scm_case in $CASE_LIST; do
           OUTPUT_DIR="${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}"
           OUTPUT_PATH="${OUTPUT_DIR}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
           CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_PATH}, "
-          CONFIG_LABELS="${CONFIG_LABELS}${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s, "
+          CONFIG_LABELS="${CONFIG_LABELS}${label}, "
+          echo ${CONFIG_LABELS[@]}
 
           # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
           cd "$SCM_DIR/scm/bin"
@@ -359,7 +396,7 @@ for scm_case in $CASE_LIST; do
     CONFIG_LABELS=$baseline_label${CONFIG_LABELS}
   fi
     
-  # Export variables needed for plot_config_template
+  # Export variables needed for templates
   export CONFIG_DATASETS
   export CONFIG_LABELS
   export PLOT_DIR
@@ -367,6 +404,9 @@ for scm_case in $CASE_LIST; do
   export OBS_COMPARE
   export START_TIME
   export END_TIME
+  export scm_case
+  export plot_path
+  export captions
 
   # Plot config template
   PLOT_TEMPLATE="${BASE_DIR}/scripts/plot_config_template.ini"
@@ -385,7 +425,7 @@ for scm_case in $CASE_LIST; do
   # Copy python plotting script to run directory
   cp ${SCRIPT_DIR}/scm_analysis.py ${BASE_DIR}/scm_plots
   cp ${SCRIPT_DIR}/scm_read_obs.py ${BASE_DIR}/scm_plots
-  cp $SCM_DIR/scm/etc/scripts/scm_plotting_routines.py ${BASE_DIR}/scm_plots
+  cp ${SCRIPT_DIR}/scm_plotting_routines.py ${BASE_DIR}/scm_plots
   cp $SCM_DIR/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/scm_plots
   cp $SCM_DIR/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
 
@@ -396,8 +436,9 @@ for scm_case in $CASE_LIST; do
   # Setup github pages for displaying plots
   #########################################
   plot_path="${BASE_DIR}/scm_plots/${PLOT_DIR}"
-  export scm_case
-  export plot_path
+  if [ ! -d ${plot_path} ]; then
+    mkdir -p ${plot_path}
+  fi
 
   python ${SCRIPT_DIR}/html/generate_config.py
 

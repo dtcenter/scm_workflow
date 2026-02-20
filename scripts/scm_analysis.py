@@ -1004,10 +1004,10 @@ if(plot_ind_datasets):
 
                             obs_mean_data = np.mean(obs_data_time_slice, (0))
 
-                            spr.plot_profile_multi(vert_axis, [mean_data], [scm_datasets_labels[i]], label, vert_axis_label_pm, ind_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, obs_z=obs_vert_axis, obs_values=obs_mean_data, line_type='color', color_index=i, conversion_factor=conversion_factor)
+                            spr.plot_profile_multi(vert_axis, [mean_data], [scm_datasets_labels[i]], label, vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), ind_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, obs_z=obs_vert_axis, obs_values=obs_mean_data, line_type='color', color_index=i, conversion_factor=conversion_factor)
 
                         else:
-                            spr.plot_profile_multi(vert_axis, [mean_data], [scm_datasets_labels[i]], label, vert_axis_label_pm, ind_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color', color_index=i, conversion_factor=conversion_factor)
+                            spr.plot_profile_multi(vert_axis, [mean_data], [scm_datasets_labels[i]], label, vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), ind_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color', color_index=i, conversion_factor=conversion_factor)
 
                     else:
                         print('The variable ' + profiles_mean['vars'][k] + ' found in ' + args.config[0] + ' in the profiles_mean section is invalid.')
@@ -1054,7 +1054,7 @@ if(plot_ind_datasets):
                                 exit()
                             data_list.append(np.mean(data_time_slice, (0,2)))
 
-                        spr.plot_profile_multi(vert_axis, data_list, profiles_mean_multi[multiplot]['vars_labels'], profiles_mean_multi[multiplot]['x_label'], vert_axis_label_pm, ind_dir + '/profiles_mean_multi_' + multiplot + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='style', color_index=i, conversion_factor=conversion_factor)
+                        spr.plot_profile_multi(vert_axis, data_list, profiles_mean_multi[multiplot]['vars_labels'], profiles_mean_multi[multiplot]['x_label'], vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), ind_dir + '/profiles_mean_multi_' + multiplot + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='style', color_index=i, conversion_factor=conversion_factor)
 
                     num_plots_completed += 1
                     print_progress(num_plots_completed, num_total_plots)
@@ -1463,7 +1463,7 @@ if(len(scm_datasets) > 1):
 
                         obs_mean_data = np.mean(obs_data_time_slice, (0))
 
-                        spr.plot_profile_multi(vert_axis, mean_data, scm_datasets_labels, label, vert_axis_label_pm, comp_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, obs_z=obs_vert_axis, obs_values=obs_mean_data, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)
+                        spr.plot_profile_multi(vert_axis, mean_data, scm_datasets_labels, label, vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), comp_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, obs_z=obs_vert_axis, obs_values=obs_mean_data, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)
 
                         if(bias_val):
                             bias_data = []
@@ -1471,10 +1471,10 @@ if(len(scm_datasets) > 1):
                                 interp_values = np.flipud(np.interp(np.flipud(obs_vert_axis), np.flipud(vert_axis), np.flipud(mean_data[i])))
                                 bias_data.append(interp_values - obs_mean_data)
                             print(label)
-                            spr.plot_profile_multi(obs_vert_axis, bias_data, scm_datasets_labels, label + ' bias', vert_axis_label_pm, comp_dir + '/profiles_bias_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color', zero_line=True, conversion_factor=conversion_factor)
+                            spr.plot_profile_multi(obs_vert_axis, bias_data, scm_datasets_labels, label + ' bias', vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), comp_dir + '/profiles_bias_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color', zero_line=True, conversion_factor=conversion_factor)
 
                     else:
-                        spr.plot_profile_multi(vert_axis, mean_data, scm_datasets_labels, label, vert_axis_label_pm, comp_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)
+                        spr.plot_profile_multi(vert_axis, mean_data, scm_datasets_labels, label, vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), comp_dir + '/profiles_mean_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)
                 else:
                     print('The variable ' + profiles_mean['vars'][k] + ' found in ' + args.config[0] + ' in the profiles_mean section is invalid.')
                 num_plots_completed += 1
@@ -1521,7 +1521,7 @@ if(len(scm_datasets) > 1):
                                 exit()
                             data_list.append(np.mean(data_time_slice, (0,2)))
                         data_list_of_list.append(data_list)
-                    spr.plot_profile_multi(vert_axis, data_list_of_list, [profiles_mean_multi[multiplot]['vars_labels'],scm_datasets_labels], profiles_mean_multi[multiplot]['x_label'], vert_axis_label_pm, comp_dir + '/profiles_mean_multi_' + multiplot + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='style', conversion_factor=conversion_factor)
+                    spr.plot_profile_multi(vert_axis, data_list_of_list, [profiles_mean_multi[multiplot]['vars_labels'],scm_datasets_labels], profiles_mean_multi[multiplot]['x_label'], vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), comp_dir + '/profiles_mean_multi_' + multiplot + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='style', conversion_factor=conversion_factor)
 
                 num_plots_completed += 1
                 print_progress(num_plots_completed, num_total_plots)
