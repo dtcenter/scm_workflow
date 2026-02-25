@@ -8,14 +8,14 @@
 
 # List of cases to test - note - forcing data for each case may be in separate directories
 # Currently supported: twpice, MAGIC_LEG15A 
-CASE_LIST='MAGIC_LEG15A'
+CASE_LIST='MAGIC_LEG15A twpice'
 
 # List of suites to test
 SUITE_LIST='SCM_GFS_v16 SCM_GFS_v17_p8_ugwpv1'
 
 # List of column areas in m^2 - could also change to column dx in km (more user friendly?)
-COLUMN_AREAS='1.45E8'
-#COLUMN_AREAS='1.69E8'
+#COLUMN_AREAS='1.45E8'
+COLUMN_AREAS='9E6 1.69E8'
 
 # List of time steps
 TIME_STEPS='300'
@@ -40,7 +40,7 @@ GIT_BRANCH='main'
 local_scm_dir='/path/to/ccpp-scm'
 
 # Build switches
-make_build='True'
+make_build='False'
 build_32bit='False'
 
 # Run option to skip existing runs or not
@@ -211,6 +211,7 @@ for scm_case in $CASE_LIST; do
   read -ra DTS <<< "$TIME_STEPS"
   read -ra DTIS <<< "$PHYSICS_TIME_STEPS"
 
+  caption=()
   if [ ${#SUITES[@]} -eq 1 ]; then
     caption+=("Suite: ${SUITES[0]}")
   fi
@@ -258,7 +259,7 @@ for scm_case in $CASE_LIST; do
             label+=("$suite")
           fi
 	  if [ ${#AREAS[@]} -gt 1 ]; then
-            label+=("dx${column_area}km")
+            label+=("${column_dx}km")
           fi
           if [ ${#DTS[@]} -gt 1 ]; then
             label+=("dt${timestep}s")
@@ -266,16 +267,14 @@ for scm_case in $CASE_LIST; do
           if [ ${#DTIS[@]} -gt 1 ]; then
             label+=("dti${dti}s")
           fi
-          label=$(IFS=', '; echo "${label[*]}")
 
           # Default output naming
           run_dir="run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s"
           run_path="${run_dir}/output_${scm_case}_${suite}/output.nc"
           OUTPUT_DIR="${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}"
-          OUTPUT_PATH="${OUTPUT_DIR}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
+          OUTPUT_PATH="${OUTPUT_DIR}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
           CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_PATH}, "
-          CONFIG_LABELS="${CONFIG_LABELS}${label}, "
-          echo ${CONFIG_LABELS[@]}
+          CONFIG_LABELS="${CONFIG_LABELS}${label[@]}, "
 
           # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
           cd "$SCM_DIR/scm/bin"
@@ -340,7 +339,7 @@ for scm_case in $CASE_LIST; do
       for timestep in $TIME_STEPS; do
         for dti in $PHYSICS_TIME_STEPS; do
           column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
-          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
+          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
           cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
 	  # Decide whether to remove the original run directory
           #rm -rf $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
@@ -405,7 +404,6 @@ for scm_case in $CASE_LIST; do
   export START_TIME
   export END_TIME
   export scm_case
-  export plot_path
   export captions
 
   # Plot config template
@@ -439,7 +437,8 @@ for scm_case in $CASE_LIST; do
   if [ ! -d ${plot_path} ]; then
     mkdir -p ${plot_path}
   fi
-
-  python ${SCRIPT_DIR}/html/generate_config.py
+  export plot_path
 
 done
+
+python ${SCRIPT_DIR}/html/generate_config.py

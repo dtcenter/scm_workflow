@@ -1,0 +1,147 @@
+{
+  "base_plot_dir": "/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/scm_workflow_hertneky/scm_plots/plots_test",
+  "cases": {
+    "MAGIC": {
+      "label": "MAGIC",
+      "suites": {
+        "GFS_v16": {
+          "label": "GFS_v16"
+        },
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
+        "comp": {
+          "label": "Comparison"
+        }
+      },
+      "areas": {
+        "13.00km": {
+          "label": "13.00km"
+        },
+        "3.00km": {
+          "label": "3.00km"
+        }
+      },
+      "dts": {
+        "300s": {
+          "label": "300s"
+        }
+      },
+      "dtis": {
+        "150s": {
+          "label": "150s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_qv.png": "Qv"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc pressure",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate"
+          }
+        }
+      }
+    },
+    "twpice": {
+      "label": "twpice",
+      "suites": {
+        "comp": {
+          "label": "Comparison"
+        },
+        "v16": {
+          "label": "v16"
+        },
+        "v17_p8_ugwpv1": {
+          "label": "v17_p8_ugwpv1"
+        }
+      },
+      "areas": {
+        "13.00km": {
+          "label": "13.00km"
+        },
+        "3.00km": {
+          "label": "3.00km"
+        }
+      },
+      "dts": {
+        "300s": {
+          "label": "300s"
+        }
+      },
+      "dtis": {
+        "150s": {
+          "label": "150s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_qv.png": "Qv"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc pressure",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate"
+          }
+        }
+      }
+    }
+  }
+}

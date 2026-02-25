@@ -54,6 +54,17 @@ def replace_fill_with_nan(nc_ds, var_name, var, group, time_diag, pres_l, datase
     group.append(var_name)
     return[var,group]
 
+def build_run_name(path):
+    path = os.path.abspath(path)
+
+    case_name = os.environ.get("scm_case") 
+    suite_name = os.path.basename(os.path.dirname(path))
+
+    fname = os.path.basename(path)
+    configs = fname.replace("_output.nc", "")
+
+    return f"{case_name}_{suite_name}_{configs}"
+
 #set up command line argument parser to read in name of config file to use
 parser = argparse.ArgumentParser()
 parser.add_argument('config', help='configuration file for CCPP SCM analysis', nargs=1)
@@ -929,11 +940,13 @@ if(contours['vert_axis'] in locals()):
 
 
 #make plots for each dataset individually (colors should stay the same for each dataset [using color_index keyword])
+run_names = [build_run_name(p) for p in scm_datasets]
 if(plot_ind_datasets):
     for i in range(len(scm_datasets)):
         #loop through the time slices
         for j in range(len(time_slice_labels)):
-            ind_dir = plot_dir + scm_datasets_labels[i] + '/' + time_slice_labels[j]
+            print(run_names[i])
+            ind_dir = plot_dir + '/' + run_names[i] + '/' + time_slice_labels[j]
 
             #make the directory for the current dataset
             try:
@@ -1396,7 +1409,7 @@ if(plot_ind_datasets):
 if(len(scm_datasets) > 1):
     #loop through the time slices
     for j in range(len(time_slice_labels)):
-        comp_dir = plot_dir + 'comp/' + time_slice_labels[j]
+        comp_dir = plot_dir + '/' + 'comp/' + time_slice_labels[j]
 
         #make the directory for the current dataset
         try:
