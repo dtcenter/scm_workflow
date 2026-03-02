@@ -308,6 +308,7 @@
 
             const imgTag = document.getElementById("figureDisplay");
 
+	    console.log("DATASET DIR:", buildDatasetDir());
             const imgPath = `${BASE_PLOT_DIR}/${datasetDir}/active/${selectedPath}`;
 
             imgTag.onerror = function () {
