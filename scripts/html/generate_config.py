@@ -2,6 +2,7 @@ import os
 import json
 
 PLOT_ROOT = os.environ.get("plot_path")
+PLOT_DIRNAME = os.environ.get("PLOT_DIR")
 
 # Load figure template
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -56,11 +57,11 @@ for case_name in sorted(case_names):
     }
 
 config = {
-    "base_plot_dir": PLOT_ROOT,
+    "base_plot_dir": f"../../scm_plots/{PLOT_DIRNAME}",
     "cases": cases
 }
 
-config_path = os.path.join(PLOT_ROOT,"config.json")
+config_path = os.path.join(SCRIPT_DIR,"config.json")
 
 with open(config_path, "w") as f:
     json.dump(config, f, indent=2)
