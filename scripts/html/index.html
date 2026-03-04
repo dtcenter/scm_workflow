@@ -203,6 +203,9 @@
             const paramSection = document.getElementById("paramSection");
             const figSection = document.getElementById("figureSection");
 
+	    const contLabel = document.querySelector("label[for='contSelect']");
+            const contSelect = document.getElementById("contSelect");
+
             const areaSel = document.getElementById("areaSelect");
             const dtSel = document.getElementById("dtSelect");
             const dtiSel = document.getElementById("dtiSelect");
@@ -214,7 +217,6 @@
             dtiSel.selectedIndex = 0;
 
             resetFigureSelections();
-
             figSection.style.display = "none";
 
             if (!suite) {
@@ -225,8 +227,14 @@
             if (suite === "comp") {
                 paramSection.style.display = "none";
                 figSection.style.display = "block";
+
+		contLabel.style.display = "none";
+                contSelect.style.display = "none";
                 return;
             }
+
+	    contLabel.style.display = "block";
+            contSelect.style.display = "block";
 
             paramSection.style.display = "block";
         }
