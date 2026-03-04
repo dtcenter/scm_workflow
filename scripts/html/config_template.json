@@ -35,5 +35,17 @@
       "time_series_pres_s.png": "Sfc pressure",
       "time_series_tprcp_rate_accum.png": "Total Precip Rate"
     }
+  },
+  "cont": {
+    "label": "Contours",
+    "files": {
+      "contour_T.png": "Temperature",
+      "contour_qv.png": "Qv",
+      "contour_qi.png": "Qi",
+      "contour_ql.png": "Ql",
+      "contour_qc.png": "Qc",
+      "contour_u.png": "U-wind",
+      "contour_v.png": "V-wind"
+    }
   }
 }

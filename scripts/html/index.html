@@ -66,6 +66,12 @@
 	        <select id="tsSelect" onchange="updateFigure('ts')">
                     <option value="">-- Select a timeseries --</option>
                 </select>
+
+                <!-- Contours dropdown -->
+                <label for="contSelect">Contour Plots</label>
+                <select id="contSelect" onchange="updateFigure('cont')">
+                    <option value="">-- Select a contour plot --</option>
+                </select>
 	    </div>
         </div>
     </div>
@@ -268,6 +274,7 @@
             populateFigureSelect("meanSelect", figs.mean);
             populateFigureSelect("biasSelect", figs.bias);
             populateFigureSelect("tsSelect", figs.ts);
+            populateFigureSelect("contSelect", figs.cont);
         }
 
         function populateFigureSelect(selectId, figGroup) {
@@ -288,19 +295,28 @@
             const meanSel = document.getElementById("meanSelect");
             const biasSel = document.getElementById("biasSelect");
             const tsSel = document.getElementById("tsSelect");
+            const contSel = document.getElementById("contSelect");
 
             if (type === "mean") {
                 selectedPath = meanSel.value;
                 biasSel.selectedIndex = 0;
                 tsSel.selectedIndex = 0;
+                contSel.selectedIndex = 0;
             } else if (type === "bias") {
                 selectedPath = biasSel.value;
                 meanSel.selectedIndex = 0;
                 tsSel.selectedIndex = 0;
+                contSel.selectedIndex = 0;
             } else if (type === "ts") {
                 selectedPath = tsSel.value;
                 meanSel.selectedIndex = 0;
                 biasSel.selectedIndex = 0;
+                contSel.selectedIndex = 0;
+            } else if (type === "cont") {
+                selectedPath = contSel.value;
+                meanSel.selectedIndex = 0;
+                biasSel.selectedIndex = 0;
+                tsSel.selectedIndex = 0;
             }
 
             const datasetDir = buildDatasetDir();
@@ -324,10 +340,12 @@
             const meanSel = document.getElementById("meanSelect");
             const biasSel = document.getElementById("biasSelect");
             const tsSel   = document.getElementById("tsSelect");
+            const contSel   = document.getElementById("contSelect");
 
             meanSel.selectedIndex = 0;
             biasSel.selectedIndex = 0;
             tsSel.selectedIndex = 0;
+            contSel.selectedIndex = 0;
         }
 
 	function clearFigure() {
