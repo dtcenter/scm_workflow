@@ -7,23 +7,23 @@
 # If only 1 item in a list add as caption, otherwise add as legend
 
 # List of cases to test - note - forcing data for each case may be in separate directories
-# Currently supported: twpice, MAGIC_LEG15A 
-CASE_LIST='MAGIC_LEG15A'
+# Currently supported: twpice, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS 
+CASE_LIST='MOSAiC-AMPS'
 
 # List of suites to test
 SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
 # List of column areas in m^2 - could also change to column dx in km (more user friendly?)
-#COLUMN_AREAS='1.45E8'
-COLUMN_AREAS='9E6 1.69E8'
+#COLUMN_AREAS='1.45E8' # MAGIC
+COLUMN_AREAS='2E9'    # MOSAiC
 
 # List of time steps
-TIME_STEPS='300 150'
-PHYSICS_TIME_STEPS='150 75'
+TIME_STEPS='600'
+PHYSICS_TIME_STEPS='300 150 75'
 
 # Array list of output frequencies (paired with each timestep)
-OUT_FREQS=(1 2)
-DIAG_FREQS=(1 2)
+OUT_FREQS=(1)
+DIAG_FREQS=(1)
 
 # Platform (Hera/Derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
@@ -51,7 +51,7 @@ tag='test'
 
 # Plotting options
 PLOT_DIR=plots_$tag
-OBS_COMPARE='False'
+OBS_COMPARE='True'
 
 # Option to compare to a local baseline(s)
 # Comma-separated if appending more than one baseline
@@ -187,15 +187,6 @@ for scm_case in $CASE_LIST; do
   # For storing case/suite lists 
   CONFIG_DATASETS=""
   CONFIG_LABELS=""
-
-  # Observation file to use based on case
-  if [[ "$scm_case" == MAGIC_LEG15A ]]; then
-    OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
-  elif [[ "$scm_case" == twpice ]]; then
-    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
-  else
-    OBS_FILE=""
-  fi
 
   JOB_IDS=()
   BATCH_FILES=()
@@ -354,42 +345,25 @@ for scm_case in $CASE_LIST; do
   # Run plotting scripts
   ######################
 
-  # Invoke python to get start/end date from case output to pass to the plot config
-  # This should be the same for all configs run for the same case.
-  #this should be modified to get the common start date from obs and scm?
-#TIME_INFO=$(python3 - <<EOF
-#from netCDF4 import Dataset
-#from datetime import datetime, timedelta
-
-#f = Dataset("${OUTPUT_PATH}")
-
-#y = int(f.variables["init_year"][:])
-#m = int(f.variables["init_month"][:])
-#d = int(f.variables["init_day"][:])
-#H = int(f.variables["init_hour"][:])
-#M = int(f.variables["init_minute"][:])
-
-#init_time = datetime(y, m, d, H, M)
-
-#t = f.variables["time_inst"][:]
-#t = t[t < 1e30]
-
-#start_time = init_time + timedelta(seconds=float(t[0]))
-#end_time   = init_time + timedelta(seconds=float(t[-1]))
-
-#print(f"{start_time.year}, {start_time.month}, {start_time.day}, {start_time.hour}")
-#print(f"{end_time.year}, {end_time.month}, {end_time.day}, {end_time.hour}")
-#EOF
-#)
-
-#  START_TIME=$(echo "$TIME_INFO" | sed -n '1p')
-#  END_TIME=$(echo "$TIME_INFO" | sed -n '2p')
-  if [[ $scm_case == *"MAGIC_LEG15A"* ]]; then
+  # Parameters used by plotting routine for each case
+  if [[ "$scm_case" == MAGIC_LEG15A ]]; then
+    OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
-  elif [[ $scm_case == *"twpice"* ]]; then
+  elif [[ "$scm_case" == twpice ]]; then
+    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
     START_TIME="2006, 1, 20, 0"
     END_TIME="2006, 1, 23, 0"
+  elif [[ "$scm_case" == MOSAiC-AMPS ]]; then
+    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_31Oct20190Z_raw.nc"
+    START_TIME="2019, 11, 1, 0"
+    END_TIME="2019, 11, 2, 0"
+  elif [[ "$scm_case" == MOSAiC-SS ]]; then
+    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_2Mar20200Z_raw.nc"
+    START_TIME="2020, 3, 4, 0"
+    END_TIME="2020, 3, 5, 0"
+  else
+    OBS_FILE=""
   fi
 
   if [ $plot_cmp_baseline == 'True' ]; then
