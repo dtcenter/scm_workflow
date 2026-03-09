@@ -59,6 +59,10 @@ def plot_profile_multi(z, values, labels, x_label, y_label, title, captions, fil
     if np.count_nonzero(values) == 0:
         print('The plot named {} will not be created due to all zero values'.format(filename))
         return
+
+    if not np.any(np.isfinite(values)):
+        print(f'The plot named {filename} will not be created due to no finite values')
+        return
     
     fig = plt.figure()
     colors = ['#e41a1c','#4daf4a','#377eb8','#984ea3','#ff7f00','#a65628','#f781bf','#ffff33']
@@ -204,8 +208,11 @@ def plot_profile_multi(z, values, labels, x_label, y_label, title, captions, fil
             include_y = np.intersect1d(np.where(z >= y_lim[0])[0], np.where(z <= y_lim[1])[0])
             start_y = include_y[0]
             end_y = include_y[-1]
-            min_x.append(conversion_factor*np.min(values[i][start_y:end_y]))
-            max_x.append(conversion_factor*np.max(values[i][start_y:end_y]))
+            slice_vals = np.array(values[i][start_y:end_y])
+            finite_vals = slice_vals[np.isfinite(slice_vals)]
+            if finite_vals.size > 0:
+                min_x.append(conversion_factor*np.min(finite_vals))
+                max_x.append(conversion_factor*np.max(finite_vals))
         if obs_values is not None and obs_z is not None:
             include_y = np.intersect1d(np.where(obs_z >= y_lim[0])[0], np.where(obs_z <= y_lim[1])[0])
             start_y = include_y[0]
@@ -300,6 +307,10 @@ def plot_time_series_multi(time, values, labels, x_label, y_label, filename, obs
     
     if np.count_nonzero(values) == 0:
         print('The plot named {} will not be created due to all zero values'.format(filename))
+        return
+
+    if not np.any(np.isfinite(values)):
+        print(f'The plot named {filename} will not be created due to no finite values')
         return
     
     fig = plt.figure()
@@ -414,6 +425,10 @@ def contour_plot_firl(x_dim, y_dim, values, min_val, max_val, title, x_label, y_
     
     if np.count_nonzero(values) == 0:
         print('The plot named {} will not be created due to all zero values'.format(filename))
+        return
+
+    if not np.any(np.isfinite(values)):
+        print(f'The plot named {filename} will not be created due to no finite values')
         return
         
     if np.amax(values) == np.amin(values):
