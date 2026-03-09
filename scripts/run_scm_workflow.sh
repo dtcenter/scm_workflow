@@ -8,22 +8,22 @@
 
 # List of cases to test - note - forcing data for each case may be in separate directories
 # Currently supported: twpice, MAGIC_LEG15A 
-CASE_LIST='MAGIC_LEG15A twpice'
+CASE_LIST='MAGIC_LEG15A'
 
 # List of suites to test
-SUITE_LIST='SCM_GFS_v16 SCM_GFS_v17_p8_ugwpv1'
+SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
 # List of column areas in m^2 - could also change to column dx in km (more user friendly?)
 #COLUMN_AREAS='1.45E8'
 COLUMN_AREAS='9E6 1.69E8'
 
 # List of time steps
-TIME_STEPS='300'
-PHYSICS_TIME_STEPS='150'
+TIME_STEPS='300 150'
+PHYSICS_TIME_STEPS='150 75'
 
 # Array list of output frequencies (paired with each timestep)
-OUT_FREQS=(1)
-DIAG_FREQS=(1)
+OUT_FREQS=(1 2)
+DIAG_FREQS=(1 2)
 
 # Platform (Hera/Derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
@@ -40,7 +40,7 @@ GIT_BRANCH='main'
 local_scm_dir='/path/to/ccpp-scm'
 
 # Build switches
-make_build='False'
+make_build='True'
 build_32bit='False'
 
 # Run option to skip existing runs or not
@@ -117,6 +117,7 @@ if [ $make_build == 'True' ]; then
     fi
 
     # Load the SCM environment
+    module purge
     MODULE_PATH="$SCM_DIR/scm/etc/modules"
     module use "$MODULE_PATH"
     module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
@@ -200,6 +201,7 @@ for scm_case in $CASE_LIST; do
   BATCH_FILES=()
 
   # Load the SCM environment
+  module purge
   MODULE_PATH="$SCM_DIR/scm/etc/modules"
   module use "$MODULE_PATH"
   module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
@@ -250,9 +252,8 @@ for scm_case in $CASE_LIST; do
 
         # Loop through physics time steps
         for dti in $PHYSICS_TIME_STEPS; do
+          export dti
 
-	  # Change the dt_inner in the physics namelist
- 
           # Build labels
 	  label=()
           if [ ${#SUITES[@]} -gt 1 ]; then
@@ -278,6 +279,7 @@ for scm_case in $CASE_LIST; do
 
           # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
           cd "$SCM_DIR/scm/bin"
+	  cp ${SCRIPT_DIR}/run_scm.py .
           RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
 	  echo $RUN_COMMAND
           if [ -n "${CASE_DATA_DIR}" ]; then
@@ -310,8 +312,8 @@ for scm_case in $CASE_LIST; do
             BATCH_FILES+=("$batch_file")
           fi
         done
+        n=$((n+1))
       done
-      n=$((n+1))
     done
   done
 
