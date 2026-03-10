@@ -6,6 +6,9 @@
       "suites": {
         "GFS_v17_p8_ugwpv1": {
           "label": "GFS_v17_p8_ugwpv1"
+        },
+        "comp": {
+          "label": "Comparison"
         }
       },
       "areas": {
@@ -86,6 +89,9 @@
       "suites": {
         "GFS_v17_p8_ugwpv1": {
           "label": "GFS_v17_p8_ugwpv1"
+        },
+        "comp": {
+          "label": "Comparison"
         }
       },
       "areas": {
@@ -166,6 +172,9 @@
       "suites": {
         "GFS_v17_p8_ugwpv1": {
           "label": "GFS_v17_p8_ugwpv1"
+        },
+        "comp": {
+          "label": "Comparison"
         }
       },
       "areas": {
@@ -246,6 +255,9 @@
       "suites": {
         "GFS_v17_p8_ugwpv1": {
           "label": "GFS_v17_p8_ugwpv1"
+        },
+        "comp": {
+          "label": "Comparison"
         }
       },
       "areas": {
@@ -326,6 +338,9 @@
       "suites": {
         "GFS_v17_p8_ugwpv1": {
           "label": "GFS_v17_p8_ugwpv1"
+        },
+        "comp": {
+          "label": "Comparison"
         }
       },
       "areas": {

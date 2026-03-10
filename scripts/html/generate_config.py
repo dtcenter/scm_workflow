@@ -30,8 +30,6 @@ for case_name in sorted(case_names):
 
     # Loop through directories in scm_plots/plots_test
     for d in sorted(os.listdir(PLOT_ROOT)):
-        if not d.startswith(f"{case_name}_SCM_"):
-            continue
 
         full_path = os.path.join(PLOT_ROOT, d)
         if not os.path.isdir(full_path):
@@ -39,6 +37,9 @@ for case_name in sorted(case_names):
 
         if d == "comp":
             suites["comp"] = {"label": "Comparison"}
+            continue
+
+        if not d.startswith(f"{case_name}_SCM_"):
             continue
 
         suite = d.split("_SCM_", 1)[1].split("_area", 1)[0]
