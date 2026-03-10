@@ -35,7 +35,7 @@ for case_name in sorted(case_names):
         if not os.path.isdir(full_path):
             continue
 
-        if d == "comp":
+        if d == f"{case_name}_comp":
             suites["comp"] = {"label": "Comparison"}
             continue
 

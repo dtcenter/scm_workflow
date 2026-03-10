@@ -263,7 +263,7 @@
             const caseName = CONFIG.cases[caseKey].label;
 
             if (suite === "comp") {
-                return "comp";
+                return `${caseName}_comp`;
             }
 
             const area = document.getElementById("areaSelect").value;

@@ -21,7 +21,9 @@
     "label": "Bias Profiles",
     "files": {
       "profiles_bias_T.png": "Temperature",
-      "profiles_bias_qv.png": "Qv"
+      "profiles_bias_qv.png": "Qv",
+      "profiles_bias_qi.png": "Qi",
+      "profiles_bias_ql.png": "Ql"
     }
   },
   "ts": {

@@ -1420,7 +1420,7 @@ if(plot_ind_datasets):
 if(len(scm_datasets) > 1):
     #loop through the time slices
     for j in range(len(time_slice_labels)):
-        comp_dir = plot_dir + '/' + 'comp/' + time_slice_labels[j]
+        comp_dir = plot_dir + '/' + os.environ.get("scm_case") + '_comp/' + time_slice_labels[j]
 
         #make the directory for the current dataset
         try:
