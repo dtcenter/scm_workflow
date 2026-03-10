@@ -375,14 +375,17 @@ for scm_case in $CASE_LIST; do
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
     START_TIME="2006, 1, 20, 0"
     END_TIME="2006, 1, 23, 0"
+    OBS_COMPARE='True'
   elif [[ "$scm_case" == MOSAiC-AMPS ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_31Oct20190Z_raw.nc"
     START_TIME="2019, 11, 1, 0"
     END_TIME="2019, 11, 2, 0"
+    OBS_COMPARE='True'
   elif [[ "$scm_case" == MOSAiC-SS ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_2Mar20200Z_raw.nc"
     START_TIME="2020, 3, 4, 0"
     END_TIME="2020, 3, 5, 0"
+    OBS_COMPARE='True'
   elif [[ "$scm_case" == COMBLE ]]; then
     OBS_FILE=""
     START_TIME="2020, 3, 13, 1"
