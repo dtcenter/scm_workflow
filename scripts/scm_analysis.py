@@ -945,7 +945,6 @@ if(plot_ind_datasets):
     for i in range(len(scm_datasets)):
         #loop through the time slices
         for j in range(len(time_slice_labels)):
-            print(run_names[i])
             ind_dir = plot_dir + '/' + run_names[i] + '/' + time_slice_labels[j]
 
             #make the directory for the current dataset
@@ -1496,7 +1495,6 @@ if(len(scm_datasets) > 1):
                             for i in range(len(scm_datasets)):
                                 interp_values = np.flipud(np.interp(np.flipud(obs_vert_axis), np.flipud(vert_axis), np.flipud(mean_data[i])))
                                 bias_data.append(interp_values - obs_mean_data)
-                            print(label)
                             spr.plot_profile_multi(obs_vert_axis, bias_data, scm_datasets_labels, label + ' bias', vert_axis_label_pm, os.environ.get("scm_case"), os.environ.get("captions"), comp_dir + '/profiles_bias_' + profiles_mean['vars'][k] + plot_ext, y_inverted=y_inverted_val_pm, y_log=y_log_val_pm, y_lim=y_lim_val, line_type='color', zero_line=True, conversion_factor=conversion_factor)
 
                     else:

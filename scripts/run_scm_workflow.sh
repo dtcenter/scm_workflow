@@ -7,15 +7,15 @@
 # If only 1 item in a list add as caption, otherwise add as legend
 
 # List of cases to test - note - forcing data for each case may be in separate directories
-# Currently supported: twpice, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS 
-CASE_LIST='MOSAiC-AMPS'
+# Currently supported: twpice, MAGIC_LEG12A, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, MPACE_REF
+CASE_LIST='MAGIC_LEG12A MAGIC_LEG15A MOSAiC-AMPS COMBLE MPACE_REF'
 
 # List of suites to test
 SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
 # List of column areas in m^2 - could also change to column dx in km (more user friendly?)
-#COLUMN_AREAS='1.45E8' # MAGIC
-COLUMN_AREAS='2E9'    # MOSAiC
+# *If left empty, uses default in case config nml
+COLUMN_AREAS=''
 
 # List of time steps
 TIME_STEPS='600'
@@ -47,10 +47,11 @@ build_32bit='False'
 rerun_cases='False'
 
 # Tag used for directory naming for the set of scm runs
-tag='test'
+tag='multicase'
 
 # Plotting options
 PLOT_DIR=plots_$tag
+# Cases that do not support obs comparisons are hard-coded to False
 OBS_COMPARE='True'
 
 # Option to compare to a local baseline(s)
@@ -73,6 +74,8 @@ if [ $scm_type == 'github' ]; then
 elif [ $scm_type == 'local' ]; then
   SCM_DIR=$local_scm_dir
 fi
+
+SUITE_BUILD_LIST="$SUITE_LIST ${SUITE_LIST}_ps"
 
 if [ $make_build == 'True' ]; then
   do_build="yes"
@@ -127,9 +130,9 @@ if [ $make_build == 'True' ]; then
 
     # Build with single precision if requested
     if [ $build_32bit == 'True' ]; then
-      cmake -DCCPP_SUITES="${SUITE_LIST// /,}" -D32BIT=ON ../src
+      cmake -DCCPP_SUITES="${SUITE_BUILD_LIST// /,}" -D32BIT=ON ../src
     else
-      cmake -DCCPP_SUITES="${SUITE_LIST// /,}" ../src
+      cmake -DCCPP_SUITES="${SUITE_BUILD_LIST// /,}" ../src
     fi
     make -j4
   fi
@@ -166,9 +169,8 @@ for scm_case in $CASE_LIST; do
   # Reset each loop
   CASE_DATA_DIR=""
 
-  # Detect if case is MAGIC
-  if [[ $scm_case == *"MAGIC"* ]]; then
-
+  # Detect if case is from DEPHY repo
+  if [[ $scm_case == *"MAGIC"* || $scm_case == *"MPACE"* ]]; then
     # Check if the DEPHY repo exists, if not clone it
     if [ ! -d $BASE_DIR/DEPHY-SCM ]; then
       git clone -b master https://github.com/GdR-DEPHY/DEPHY-SCM $BASE_DIR/DEPHY-SCM
@@ -183,6 +185,16 @@ for scm_case in $CASE_LIST; do
   # Case config location
   CASE_CONFIG_DIR=$SCM_DIR/scm/etc/case_config
   CASE_NML=${CASE_CONFIG_DIR}/${scm_case}.nml
+
+  # If cloumn area isn't set, use default for each case
+  if [[ -z "$COLUMN_AREAS" ]]; then
+    use_default_area='True'
+    if [[ $scm_case == *"MAGIC"* || $scm_case == *"MPACE"* || $scm_case == "COMBLE" ]]; then
+      COLUMN_AREAS='1.45E8'
+    elif [[ $scm_case == "twpice" || $scm_case == *"MOSAiC"* ]]; then
+      COLUMN_AREAS='2E9'
+    fi
+  fi
 
   # For storing case/suite lists 
   CONFIG_DATASETS=""
@@ -268,7 +280,7 @@ for scm_case in $CASE_LIST; do
           CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_PATH}, "
           CONFIG_LABELS="${CONFIG_LABELS}${label[@]}, "
 
-          # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
+          # Build the run command, appending CASE_DATA_DIR for DEPHY repo cases
           cd "$SCM_DIR/scm/bin"
 	  cp ${SCRIPT_DIR}/run_scm.py .
           RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
@@ -340,16 +352,25 @@ for scm_case in $CASE_LIST; do
       done
     done
   done
+  if [[ $use_default_area == 'True' ]]; then
+    COLUMN_AREAS=''
+  fi
 
   ######################
   # Run plotting scripts
   ######################
 
   # Parameters used by plotting routine for each case
-  if [[ "$scm_case" == MAGIC_LEG15A ]]; then
+  if [[ "$scm_case" == MAGIC_LEG12A ]]; then
+    OBS_FILE=""
+    START_TIME="2013, 6, 8, 17, 45"
+    END_TIME="2013, 6, 8, 21, 45"
+    OBS_COMPARE='False'
+  elif [[ "$scm_case" == MAGIC_LEG15A ]]; then
     OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
+    OBS_COMPARE='False'
   elif [[ "$scm_case" == twpice ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
     START_TIME="2006, 1, 20, 0"
@@ -362,6 +383,16 @@ for scm_case in $CASE_LIST; do
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_2Mar20200Z_raw.nc"
     START_TIME="2020, 3, 4, 0"
     END_TIME="2020, 3, 5, 0"
+  elif [[ "$scm_case" == COMBLE ]]; then
+    OBS_FILE=""
+    START_TIME="2020, 3, 13, 1"
+    END_TIME="2020, 3, 13, 18"
+    OBS_COMPARE='False'
+  elif [[ "$scm_case" == MPACE_REF ]]; then
+    OBS_FILE=""
+    START_TIME="2004, 10, 9, 17"
+    END_TIME="2004, 10, 10, 17"
+    OBS_COMPARE='False'
   else
     OBS_FILE=""
   fi

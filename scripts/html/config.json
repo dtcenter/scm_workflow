@@ -1,19 +1,336 @@
 {
-  "base_plot_dir": "../../scm_plots/plots_test",
+  "base_plot_dir": "../../scm_plots/plots_multicase",
   "cases": {
+    "COMBLE": {
+      "label": "COMBLE",
+      "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        }
+      },
+      "areas": {
+        "12.04km": {
+          "label": "12.04km"
+        }
+      },
+      "dts": {
+        "600s": {
+          "label": "600s"
+        }
+      },
+      "dtis": {
+        "150s": {
+          "label": "150s"
+        },
+        "300s": {
+          "label": "300s"
+        },
+        "75s": {
+          "label": "75s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_qv.png": "Qv"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc pressure",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate"
+          }
+        },
+        "cont": {
+          "label": "Contours",
+          "files": {
+            "contour_T.png": "Temperature",
+            "contour_qv.png": "Qv",
+            "contour_qi.png": "Qi",
+            "contour_ql.png": "Ql",
+            "contour_qc.png": "Qc",
+            "contour_u.png": "U-wind",
+            "contour_v.png": "V-wind"
+          }
+        }
+      }
+    },
+    "MAGIC_LEG12A": {
+      "label": "MAGIC_LEG12A",
+      "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        }
+      },
+      "areas": {
+        "12.04km": {
+          "label": "12.04km"
+        }
+      },
+      "dts": {
+        "600s": {
+          "label": "600s"
+        }
+      },
+      "dtis": {
+        "150s": {
+          "label": "150s"
+        },
+        "300s": {
+          "label": "300s"
+        },
+        "75s": {
+          "label": "75s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_qv.png": "Qv"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc pressure",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate"
+          }
+        },
+        "cont": {
+          "label": "Contours",
+          "files": {
+            "contour_T.png": "Temperature",
+            "contour_qv.png": "Qv",
+            "contour_qi.png": "Qi",
+            "contour_ql.png": "Ql",
+            "contour_qc.png": "Qc",
+            "contour_u.png": "U-wind",
+            "contour_v.png": "V-wind"
+          }
+        }
+      }
+    },
+    "MAGIC_LEG15A": {
+      "label": "MAGIC_LEG15A",
+      "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        }
+      },
+      "areas": {
+        "12.04km": {
+          "label": "12.04km"
+        }
+      },
+      "dts": {
+        "600s": {
+          "label": "600s"
+        }
+      },
+      "dtis": {
+        "150s": {
+          "label": "150s"
+        },
+        "300s": {
+          "label": "300s"
+        },
+        "75s": {
+          "label": "75s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_qv.png": "Qv"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc pressure",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate"
+          }
+        },
+        "cont": {
+          "label": "Contours",
+          "files": {
+            "contour_T.png": "Temperature",
+            "contour_qv.png": "Qv",
+            "contour_qi.png": "Qi",
+            "contour_ql.png": "Ql",
+            "contour_qc.png": "Qc",
+            "contour_u.png": "U-wind",
+            "contour_v.png": "V-wind"
+          }
+        }
+      }
+    },
     "MOSAiC-AMPS": {
       "label": "MOSAiC-AMPS",
       "suites": {
         "GFS_v17_p8_ugwpv1": {
           "label": "GFS_v17_p8_ugwpv1"
-        },
-        "comp": {
-          "label": "Comparison"
         }
       },
       "areas": {
         "44.72km": {
           "label": "44.72km"
+        }
+      },
+      "dts": {
+        "600s": {
+          "label": "600s"
+        }
+      },
+      "dtis": {
+        "150s": {
+          "label": "150s"
+        },
+        "300s": {
+          "label": "300s"
+        },
+        "75s": {
+          "label": "75s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_qv.png": "Qv"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc pressure",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate"
+          }
+        },
+        "cont": {
+          "label": "Contours",
+          "files": {
+            "contour_T.png": "Temperature",
+            "contour_qv.png": "Qv",
+            "contour_qi.png": "Qi",
+            "contour_ql.png": "Ql",
+            "contour_qc.png": "Qc",
+            "contour_u.png": "U-wind",
+            "contour_v.png": "V-wind"
+          }
+        }
+      }
+    },
+    "MPACE_REF": {
+      "label": "MPACE_REF",
+      "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        }
+      },
+      "areas": {
+        "12.04km": {
+          "label": "12.04km"
         }
       },
       "dts": {

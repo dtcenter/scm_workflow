@@ -232,7 +232,6 @@ def plot_profile_multi(z, values, labels, x_label, y_label, title, captions, fil
         plt.yticks(np.linspace(yticks[0],yticks[1],yticks[2],endpoint=True))
         plt.gca().get_yaxis().get_major_formatter().labelOnlyBase = False
         plt.gca().get_yaxis().set_major_formatter(mpl.ticker.FormatStrFormatter('%d'))
-    print(filename)
     plt.savefig(filename, bbox_inches = 'tight')
     plt.close()
 
