@@ -218,6 +218,39 @@ def find_gdb():
     logging.info('Found {0}'.format(gdb))
     return gdb
 
+def update_dt_inner(namelist_path, dt_inner_value):
+    with open(namelist_path, 'r') as f:
+        lines = f.readlines()
+
+    in_gfs_section = False
+    dt_found = False
+    new_lines = []
+
+    for i, line in enumerate(lines):
+        stripped = line.strip().lower()
+
+        # Detect start of gfs_physics_nml section
+        if stripped.startswith('&gfs_physics_nml'):
+            in_gfs_section = True
+
+        # Detect end of namelist section
+        if in_gfs_section and stripped.startswith('/'):
+            # If dt_inner not found, insert before section closes
+            if not dt_found:
+                new_lines.append(f'   dt_inner = {dt_inner_value},\n')
+                dt_found = True
+            in_gfs_section = False
+
+        # Replace existing dt_inner
+        if in_gfs_section and re.match(r'\s*dt_inner\s*=', line, re.IGNORECASE):
+            new_lines.append(f'  dt_inner     = {dt_inner_value}\n')
+            dt_found = True
+        else:
+            new_lines.append(line)
+
+    with open(namelist_path, 'w') as f:
+        f.writelines(new_lines)
+
 class Experiment(object):
 
     def __init__(self, case, suite, runtime, runtime_mult, levels, npz_type, vert_coord_file, case_data_dir, n_itt_out, n_itt_diag, timestep):
@@ -627,6 +660,17 @@ class Experiment(object):
                     logging.debug('Linking file {0}'.format(entry))
                     cmd = 'ln -sf {0} {1}'.format(os.path.join(SCM_ROOT, REFERENCE_PROFILE_DIR, entry), os.path.join(SCM_RUN, entry))
                     execute(cmd)
+
+        # Update dt_inner in physics namelist
+        try:
+            dt_inner = int(os.environ["dti"])
+            print(dt_inner)
+        except KeyError:
+            raise Exception("Environment variable dti is not set.")
+        except ValueError:
+            raise Exception("Environment variable dti must be a numeric value.")
+        logging.debug(f'Updating dt_inner to {dt_inner}')
+        update_dt_inner(os.path.join(SCM_RUN, self._physics_namelist), dt_inner)
 
         # Parse physics namelist and extract
         # - oz_phys

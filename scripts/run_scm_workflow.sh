@@ -7,19 +7,19 @@
 # If only 1 item in a list add as caption, otherwise add as legend
 
 # List of cases to test - note - forcing data for each case may be in separate directories
-# Currently supported: twpice, MAGIC_LEG15A 
-CASE_LIST='MAGIC_LEG15A'
+# Currently supported: twpice, MAGIC_LEG12A, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, MPACE_REF
+CASE_LIST='MAGIC_LEG12A MAGIC_LEG15A MOSAiC-AMPS COMBLE MPACE_REF'
 
 # List of suites to test
-SUITE_LIST='SCM_GFS_v16 SCM_GFS_v17_p8_ugwpv1'
+SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
 # List of column areas in m^2 - could also change to column dx in km (more user friendly?)
-COLUMN_AREAS='1.45E8'
-#COLUMN_AREAS='1.69E8'
+# *If left empty, uses default in case config nml
+COLUMN_AREAS=''
 
 # List of time steps
-TIME_STEPS='300'
-PHYSICS_TIME_STEPS='150'
+TIME_STEPS='600'
+PHYSICS_TIME_STEPS='300 150 75'
 
 # Array list of output frequencies (paired with each timestep)
 OUT_FREQS=(1)
@@ -47,11 +47,12 @@ build_32bit='False'
 rerun_cases='False'
 
 # Tag used for directory naming for the set of scm runs
-tag='test'
+tag='multicase'
 
 # Plotting options
 PLOT_DIR=plots_$tag
-OBS_COMPARE='False'
+# Cases that do not support obs comparisons are hard-coded to False
+OBS_COMPARE='True'
 
 # Option to compare to a local baseline(s)
 # Comma-separated if appending more than one baseline
@@ -73,6 +74,8 @@ if [ $scm_type == 'github' ]; then
 elif [ $scm_type == 'local' ]; then
   SCM_DIR=$local_scm_dir
 fi
+
+SUITE_BUILD_LIST="$SUITE_LIST ${SUITE_LIST}_ps"
 
 if [ $make_build == 'True' ]; then
   do_build="yes"
@@ -117,6 +120,7 @@ if [ $make_build == 'True' ]; then
     fi
 
     # Load the SCM environment
+    module purge
     MODULE_PATH="$SCM_DIR/scm/etc/modules"
     module use "$MODULE_PATH"
     module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
@@ -126,9 +130,9 @@ if [ $make_build == 'True' ]; then
 
     # Build with single precision if requested
     if [ $build_32bit == 'True' ]; then
-      cmake -DCCPP_SUITES="${SUITE_LIST// /,}" -D32BIT=ON ../src
+      cmake -DCCPP_SUITES="${SUITE_BUILD_LIST// /,}" -D32BIT=ON ../src
     else
-      cmake -DCCPP_SUITES="${SUITE_LIST// /,}" ../src
+      cmake -DCCPP_SUITES="${SUITE_BUILD_LIST// /,}" ../src
     fi
     make -j4
   fi
@@ -165,9 +169,8 @@ for scm_case in $CASE_LIST; do
   # Reset each loop
   CASE_DATA_DIR=""
 
-  # Detect if case is MAGIC
-  if [[ $scm_case == *"MAGIC"* ]]; then
-
+  # Detect if case is from DEPHY repo
+  if [[ $scm_case == *"MAGIC"* || $scm_case == *"MPACE"* ]]; then
     # Check if the DEPHY repo exists, if not clone it
     if [ ! -d $BASE_DIR/DEPHY-SCM ]; then
       git clone -b master https://github.com/GdR-DEPHY/DEPHY-SCM $BASE_DIR/DEPHY-SCM
@@ -183,21 +186,51 @@ for scm_case in $CASE_LIST; do
   CASE_CONFIG_DIR=$SCM_DIR/scm/etc/case_config
   CASE_NML=${CASE_CONFIG_DIR}/${scm_case}.nml
 
+  # If cloumn area isn't set, use default for each case
+  if [[ -z "$COLUMN_AREAS" ]]; then
+    use_default_area='True'
+    if [[ $scm_case == *"MAGIC"* || $scm_case == *"MPACE"* || $scm_case == "COMBLE" ]]; then
+      COLUMN_AREAS='1.45E8'
+    elif [[ $scm_case == "twpice" || $scm_case == *"MOSAiC"* ]]; then
+      COLUMN_AREAS='2E9'
+    fi
+  fi
+
   # For storing case/suite lists 
   CONFIG_DATASETS=""
   CONFIG_LABELS=""
 
-  # Observation file to use based on case
-  if [[ "$scm_case" == MAGIC_LEG15A ]]; then
-    OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
-  elif [[ "$scm_case" == twpice ]]; then
-    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
-  else
-    OBS_FILE=""
-  fi
-
   JOB_IDS=()
   BATCH_FILES=()
+
+  # Load the SCM environment
+  module purge
+  MODULE_PATH="$SCM_DIR/scm/etc/modules"
+  module use "$MODULE_PATH"
+  module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
+  sleep 2
+
+  # Build captions
+  read -ra SUITES <<< "$SUITE_LIST"
+  read -ra AREAS <<< "$COLUMN_AREAS"
+  read -ra DTS <<< "$TIME_STEPS"
+  read -ra DTIS <<< "$PHYSICS_TIME_STEPS"
+
+  caption=()
+  if [ ${#SUITES[@]} -eq 1 ]; then
+    caption+=("Suite: ${SUITES[0]}")
+  fi
+  if [ ${#AREAS[@]} -eq 1 ]; then
+    area=$(awk -v a="${AREAS[0]}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
+    caption+=(" Area: ${area}km")
+  fi
+  if [ ${#DTS[@]} -eq 1 ]; then
+    caption+=(" dt: ${DTS[0]}s")
+  fi
+  if [ ${#DTIS[@]} -eq 1 ]; then
+    caption+=(" dti: ${DTIS[0]}s")
+  fi
+  captions=$(IFS=', '; echo "${caption[*]}")
 
   # Run through list of suites
   for suite in $SUITE_LIST; do
@@ -222,20 +255,34 @@ for scm_case in $CASE_LIST; do
 
         # Loop through physics time steps
         for dti in $PHYSICS_TIME_STEPS; do
+          export dti
 
-	  # Change the dt_inner in the physics namelist
-          
+          # Build labels
+	  label=()
+          if [ ${#SUITES[@]} -gt 1 ]; then
+            label+=("$suite")
+          fi
+	  if [ ${#AREAS[@]} -gt 1 ]; then
+            label+=("${column_dx}km")
+          fi
+          if [ ${#DTS[@]} -gt 1 ]; then
+            label+=("dt${timestep}s")
+          fi
+          if [ ${#DTIS[@]} -gt 1 ]; then
+            label+=("dti${dti}s")
+          fi
 
           # Default output naming
           run_dir="run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s"
           run_path="${run_dir}/output_${scm_case}_${suite}/output.nc"
           OUTPUT_DIR="${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}"
-          OUTPUT_PATH="${OUTPUT_DIR}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
+          OUTPUT_PATH="${OUTPUT_DIR}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
           CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_PATH}, "
-          CONFIG_LABELS="${CONFIG_LABELS}${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s, "
+          CONFIG_LABELS="${CONFIG_LABELS}${label[@]}, "
 
-          # Build the run command, appending CASE_DATA_DIR for DEPHY MAGIC case
+          # Build the run command, appending CASE_DATA_DIR for DEPHY repo cases
           cd "$SCM_DIR/scm/bin"
+	  cp ${SCRIPT_DIR}/run_scm.py .
           RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
 	  echo $RUN_COMMAND
           if [ -n "${CASE_DATA_DIR}" ]; then
@@ -268,8 +315,8 @@ for scm_case in $CASE_LIST; do
             BATCH_FILES+=("$batch_file")
           fi
         done
+        n=$((n+1))
       done
-      n=$((n+1))
     done
   done
 
@@ -297,7 +344,7 @@ for scm_case in $CASE_LIST; do
       for timestep in $TIME_STEPS; do
         for dti in $PHYSICS_TIME_STEPS; do
           column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
-          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/dx${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
+          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
           cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
 	  # Decide whether to remove the original run directory
           #rm -rf $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
@@ -305,47 +352,52 @@ for scm_case in $CASE_LIST; do
       done
     done
   done
+  if [[ $use_default_area == 'True' ]]; then
+    COLUMN_AREAS=''
+  fi
 
   ######################
   # Run plotting scripts
   ######################
 
-  # Invoke python to get start/end date from case output to pass to the plot config
-  # This should be the same for all configs run for the same case.
-  #this should be modified to get the common start date from obs and scm?
-TIME_INFO=$(python3 - <<EOF
-from netCDF4 import Dataset
-from datetime import datetime, timedelta
-
-f = Dataset("${OUTPUT_PATH}")
-
-y = int(f.variables["init_year"][:])
-m = int(f.variables["init_month"][:])
-d = int(f.variables["init_day"][:])
-H = int(f.variables["init_hour"][:])
-M = int(f.variables["init_minute"][:])
-
-init_time = datetime(y, m, d, H, M)
-
-t = f.variables["time_inst"][:]
-t = t[t < 1e30]
-
-start_time = init_time + timedelta(seconds=float(t[0]))
-end_time   = init_time + timedelta(seconds=float(t[-1]))
-
-print(f"{start_time.year}, {start_time.month}, {start_time.day}, {start_time.hour}")
-print(f"{end_time.year}, {end_time.month}, {end_time.day}, {end_time.hour}")
-EOF
-)
-
-  START_TIME=$(echo "$TIME_INFO" | sed -n '1p')
-  END_TIME=$(echo "$TIME_INFO" | sed -n '2p')
-  if [[ $scm_case == *"MAGIC_LEG15A"* ]]; then
+  # Parameters used by plotting routine for each case
+  if [[ "$scm_case" == MAGIC_LEG12A ]]; then
+    OBS_FILE=""
+    START_TIME="2013, 6, 8, 17, 45"
+    END_TIME="2013, 6, 8, 21, 45"
+    OBS_COMPARE='False'
+  elif [[ "$scm_case" == MAGIC_LEG15A ]]; then
+    OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
-  elif [[ $scm_case == *"twpice"* ]]; then
+    OBS_COMPARE='False'
+  elif [[ "$scm_case" == twpice ]]; then
+    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
     START_TIME="2006, 1, 20, 0"
     END_TIME="2006, 1, 23, 0"
+    OBS_COMPARE='True'
+  elif [[ "$scm_case" == MOSAiC-AMPS ]]; then
+    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_31Oct20190Z_raw.nc"
+    START_TIME="2019, 11, 1, 0"
+    END_TIME="2019, 11, 2, 0"
+    OBS_COMPARE='True'
+  elif [[ "$scm_case" == MOSAiC-SS ]]; then
+    OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_2Mar20200Z_raw.nc"
+    START_TIME="2020, 3, 4, 0"
+    END_TIME="2020, 3, 5, 0"
+    OBS_COMPARE='True'
+  elif [[ "$scm_case" == COMBLE ]]; then
+    OBS_FILE=""
+    START_TIME="2020, 3, 13, 1"
+    END_TIME="2020, 3, 13, 18"
+    OBS_COMPARE='False'
+  elif [[ "$scm_case" == MPACE_REF ]]; then
+    OBS_FILE=""
+    START_TIME="2004, 10, 9, 17"
+    END_TIME="2004, 10, 10, 17"
+    OBS_COMPARE='False'
+  else
+    OBS_FILE=""
   fi
 
   if [ $plot_cmp_baseline == 'True' ]; then
@@ -353,7 +405,7 @@ EOF
     CONFIG_LABELS=$baseline_label${CONFIG_LABELS}
   fi
     
-  # Export variables needed for plot_config_template
+  # Export variables needed for templates
   export CONFIG_DATASETS
   export CONFIG_LABELS
   export PLOT_DIR
@@ -361,6 +413,8 @@ EOF
   export OBS_COMPARE
   export START_TIME
   export END_TIME
+  export scm_case
+  export captions
 
   # Plot config template
   PLOT_TEMPLATE="${BASE_DIR}/scripts/plot_config_template.ini"
@@ -379,11 +433,22 @@ EOF
   # Copy python plotting script to run directory
   cp ${SCRIPT_DIR}/scm_analysis.py ${BASE_DIR}/scm_plots
   cp ${SCRIPT_DIR}/scm_read_obs.py ${BASE_DIR}/scm_plots
-  cp $SCM_DIR/scm/etc/scripts/scm_plotting_routines.py ${BASE_DIR}/scm_plots
+  cp ${SCRIPT_DIR}/scm_plotting_routines.py ${BASE_DIR}/scm_plots
   cp $SCM_DIR/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/scm_plots
   cp $SCM_DIR/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
 
   # Run the python plotting script
-  python3 ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG
+  python ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG
+
+  #########################################
+  # Setup github pages for displaying plots
+  #########################################
+  plot_path="${BASE_DIR}/scm_plots/${PLOT_DIR}"
+  if [ ! -d ${plot_path} ]; then
+    mkdir -p ${plot_path}
+  fi
+  export plot_path
 
 done
+
+python ${SCRIPT_DIR}/html/generate_config.py
