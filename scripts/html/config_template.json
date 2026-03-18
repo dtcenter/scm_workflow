@@ -22,7 +22,7 @@
       "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
       "profiles_mean_dq_dt_deepconv.png": "dqdt_deepconv",
       "profiles_mean_dq_dt_shalconv.png": "dqdt_shalconv",
-      "profiles_mean_dT_dt_micro.png": "dqdt_micro",
+      "profiles_mean_dq_dt_micro.png": "dqdt_micro",
       "profiles_mean_dq_dt_pbl.png": "dqdt_pbl",
       "profiles_mean_rad_cloud_fraction.png": "rad_cloud_fraction",
       "profiles_mean_rad_cloud_iwp.png": "rad_cloud_iwp",
