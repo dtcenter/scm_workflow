@@ -8,7 +8,7 @@
 
 # List of cases to test - note - forcing data for each case may be in separate directories
 # Currently supported: twpice, MAGIC_LEG12A, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, MPACE_REF
-CASE_LIST='MAGIC_LEG12A MAGIC_LEG15A MOSAiC-AMPS COMBLE MPACE_REF'
+CASE_LIST='MAGIC_LEG15A MAGIC_LEG12A MOSAiC-AMPS COMBLE MPACE_REF'
 
 # List of suites to test
 SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
@@ -17,40 +17,39 @@ SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 # *If left empty, uses default in case config nml
 COLUMN_AREAS=''
 
-# List of time steps
-TIME_STEPS='600'
-PHYSICS_TIME_STEPS='300 150 75'
-
-# Array list of output frequencies (paired with each timestep)
-OUT_FREQS=(1)
-DIAG_FREQS=(1)
+# List of time steps and respecitve inner timesteps and output frequencies
+TIME_STEPS=(600 600 600 300 300 150)
+PHYSICS_TIME_STEPS=(300 150 75 150 75 75)
+OUT_FREQS=(1 1 1 2 2 4)
+DIAG_FREQS=(1 1 1 2 2 4)
 
 # Platform (Hera/Derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
 COMPILER='gnu'
 
 # Flag for type of SCM repo to use (github/local)
-scm_type='github'
+scm_type='local'
 
 # If using SMC Github repo, supply the url and branch
 GIT_URL='https://github.com/NCAR/ccpp-scm.git'
 GIT_BRANCH='main'
+scm_tag='tempo'
 
 # If using local SCM repo, supply the directory path
-local_scm_dir='/path/to/ccpp-scm'
+local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm-tempo'
 
 # Build switches
-make_build='True'
+make_build='False'
 build_32bit='False'
 
 # Run option to skip existing runs or not
 rerun_cases='False'
 
 # Tag used for directory naming for the set of scm runs
-tag='multicase'
 
 # Plotting options
-PLOT_DIR=plots_$tag
+plot_tag='tempo_thomp'
+PLOT_DIR=plots_${plot_tag}
 # Cases that do not support obs comparisons are hard-coded to False
 OBS_COMPARE='True'
 
@@ -70,12 +69,15 @@ BASE_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR=$BASE_DIR/scm_builds
 
 if [ $scm_type == 'github' ]; then
-  SCM_DIR=$BUILD_DIR/ccpp-scm-$tag
+  SCM_DIR=$BUILD_DIR/ccpp-scm-$scm_tag
 elif [ $scm_type == 'local' ]; then
   SCM_DIR=$local_scm_dir
 fi
 
-SUITE_BUILD_LIST="$SUITE_LIST ${SUITE_LIST}_ps"
+SUITE_BUILD_LIST="$SUITE_LIST"
+for s in $SUITE_LIST; do
+  SUITE_BUILD_LIST="$SUITE_BUILD_LIST ${s}_ps"
+done
 
 if [ $make_build == 'True' ]; then
   do_build="yes"
@@ -115,7 +117,7 @@ if [ $make_build == 'True' ]; then
           mkdir -p $BUILD_DIR
         fi
         cd $BUILD_DIR
-        git clone --recursive -b $GIT_BRANCH $GIT_URL ccpp-scm-$tag
+        git clone --recursive -b $GIT_BRANCH $GIT_URL ccpp-scm-$scm_tag
       fi
     fi
 
@@ -208,13 +210,11 @@ for scm_case in $CASE_LIST; do
   MODULE_PATH="$SCM_DIR/scm/etc/modules"
   module use "$MODULE_PATH"
   module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
-  sleep 2
+  sleep 5
 
   # Build captions
   read -ra SUITES <<< "$SUITE_LIST"
   read -ra AREAS <<< "$COLUMN_AREAS"
-  read -ra DTS <<< "$TIME_STEPS"
-  read -ra DTIS <<< "$PHYSICS_TIME_STEPS"
 
   caption=()
   if [ ${#SUITES[@]} -eq 1 ]; then
@@ -224,12 +224,16 @@ for scm_case in $CASE_LIST; do
     area=$(awk -v a="${AREAS[0]}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
     caption+=(" Area: ${area}km")
   fi
-  if [ ${#DTS[@]} -eq 1 ]; then
-    caption+=(" dt: ${DTS[0]}s")
-  fi
-  if [ ${#DTIS[@]} -eq 1 ]; then
-    caption+=(" dti: ${DTIS[0]}s")
-  fi
+  first=${TIME_STEPS[0]}
+  for v in "${TIME_STEPS[@]}"; do
+    [[ "$v" != "$first" ]] && first="" && break
+  done
+  [[ -n "$first" ]] && caption+=(" dt: ${first}s")
+  first=${PHYSICS_TIME_STEPS[0]}
+  for v in "${PHYSICS_TIME_STEPS[@]}"; do
+    [[ "$v" != "$first" ]] && first="" && break
+  done
+  [[ -n "$first" ]] && caption+=(" dti: ${first}s")
   captions=$(IFS=', '; echo "${caption[*]}")
 
   # Run through list of suites
@@ -239,9 +243,12 @@ for scm_case in $CASE_LIST; do
     for column_area in $COLUMN_AREAS; do
       column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
 
-      n=0
-      for timestep in $TIME_STEPS; do
+      #n=0
+      # Loop through time steps
+      for ((n=0; n<${#TIME_STEPS[@]}; n++)); do
 
+	timestep="${TIME_STEPS[n]}"
+	dti="${PHYSICS_TIME_STEPS[n]}"
         out_freq="${OUT_FREQS[n]}"
         diag_freq="${DIAG_FREQS[n]}"
 
@@ -253,69 +260,68 @@ for scm_case in $CASE_LIST; do
         envsubst '${scm_case} ${column_area}' < "$NML_TEMPLATE" > "$CASE_NML"
         echo "Created case config: $CASE_NML"
 
-        # Loop through physics time steps
-        for dti in $PHYSICS_TIME_STEPS; do
-          export dti
+        export dti
 
-          # Build labels
-	  label=()
-          if [ ${#SUITES[@]} -gt 1 ]; then
-            label+=("$suite")
-          fi
-	  if [ ${#AREAS[@]} -gt 1 ]; then
-            label+=("${column_dx}km")
-          fi
-          if [ ${#DTS[@]} -gt 1 ]; then
-            label+=("dt${timestep}s")
-          fi
-          if [ ${#DTIS[@]} -gt 1 ]; then
-            label+=("dti${dti}s")
-          fi
+        # Build labels
+	label=()
+        if [ ${#SUITES[@]} -gt 1 ]; then
+          label+=("$suite")
+        fi
+	if [ ${#AREAS[@]} -gt 1 ]; then
+          label+=("${column_dx}km")
+        fi
+        dt_unique=$(printf "%s\n" "${TIME_STEPS[@]}" | sort -u | wc -l)
+	if [ "$dt_unique" -gt 1 ]; then
+          label+=("dt${timestep}s")
+        fi
+        dti_unique=$(printf "%s\n" "${PHYSICS_TIME_STEPS[@]}" | sort -u | wc -l)
+	if [ "$dti_unique" -gt 1 ]; then
+          label+=("dti${dti}s")
+        fi
 
-          # Default output naming
-          run_dir="run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s"
-          run_path="${run_dir}/output_${scm_case}_${suite}/output.nc"
-          OUTPUT_DIR="${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}"
-          OUTPUT_PATH="${OUTPUT_DIR}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
-          CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_PATH}, "
-          CONFIG_LABELS="${CONFIG_LABELS}${label[@]}, "
+        # Default output naming
+        run_dir="run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s"
+        run_path="${run_dir}/output_${scm_case}_${suite}/output.nc"
+        OUTPUT_DIR="${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}"
+        OUTPUT_PATH="${OUTPUT_DIR}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc"
+        CONFIG_DATASETS="${CONFIG_DATASETS}${OUTPUT_PATH}, "
+        CONFIG_LABELS="${CONFIG_LABELS}${label[@]}, "
 
-          # Build the run command, appending CASE_DATA_DIR for DEPHY repo cases
-          cd "$SCM_DIR/scm/bin"
-	  cp ${SCRIPT_DIR}/run_scm.py .
-          RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
-	  echo $RUN_COMMAND
-          if [ -n "${CASE_DATA_DIR}" ]; then
-            RUN_COMMAND="${RUN_COMMAND} --case_data_dir ${CASE_DATA_DIR}"
+        # Build the run command, appending CASE_DATA_DIR for DEPHY repo cases
+        cd "$SCM_DIR/scm/bin"
+	cp ${SCRIPT_DIR}/run_scm.py .
+        RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
+	echo $RUN_COMMAND
+        if [ -n "${CASE_DATA_DIR}" ]; then
+          RUN_COMMAND="${RUN_COMMAND} --case_data_dir ${CASE_DATA_DIR}"
+        fi
+
+        # If directory exists and output.nc are non-zero, check if user wants to rerun cases
+        if [ -d "${OUTPUT_DIR}" ] && [ -s "$OUTPUT_PATH" ]; then
+          if [[ ${rerun_cases} == "False" ]]; then
+            echo "Skipping existing run: ${run_dir}"
+          elif [[ ${rerun_cases} == "True" ]]; then
+            echo "Overwriting existing run: ${run_dir}"
+            rm -rf "$SCM_DIR/scm/${run_dir}"
           fi
+        fi
 
-          # If directory exists and output.nc are non-zero, check if user wants to rerun cases
-          if [ -d "${OUTPUT_DIR}" ] && [ -s "$OUTPUT_PATH" ]; then
-            if [[ ${rerun_cases} == "False" ]]; then
-              echo "Skipping existing run: ${run_dir}"
-            elif [[ ${rerun_cases} == "True" ]]; then
-              echo "Overwriting existing run: ${run_dir}"
-              rm -rf "$SCM_DIR/scm/${run_dir}"
-            fi
-          fi
+        # Run all cases that do not exist
+        if [ ! -d "${OUTPUT_DIR}" ] || [ ! -s "$OUTPUT_PATH" ]; then
+	  # Unique batch file for each submission
+          batch_file=$(mktemp "${SCRIPT_DIR}/generated_batch_XXXXXX.sh")
 
-          # Run all cases that do not exist
-          if [ ! -d "${OUTPUT_DIR}" ] || [ ! -s "$OUTPUT_PATH" ]; then
-	    # Unique batch file for each submission
-            batch_file=$(mktemp "${SCRIPT_DIR}/generated_batch_XXXXXX.sh")
+          # Submit jobs for each case/suite combo
+          sed "s~RUN_COMMAND~${RUN_COMMAND}~g" $SCRIPT_DIR/batch_template > "$batch_file"
+          job_id=$(sbatch "$batch_file" | awk '{print $4}')
+          echo "Submitted job $job_id with command: $RUN_COMMAND"
+          RUNNING=true
+	  sleep 30
 
-            # Submit jobs for each case/suite combo
-            sed "s~RUN_COMMAND~${RUN_COMMAND}~g" $SCRIPT_DIR/batch_template > "$batch_file"
-            job_id=$(sbatch "$batch_file" | awk '{print $4}')
-            echo "Submitted job $job_id with command: $RUN_COMMAND"
-            RUNNING=true
-	    sleep 10
-
-            JOB_IDS+=("$job_id")
-            BATCH_FILES+=("$batch_file")
-          fi
-        done
-        n=$((n+1))
+          JOB_IDS+=("$job_id")
+          BATCH_FILES+=("$batch_file")
+        fi
+        #n=$((n+1))
       done
     done
   done
@@ -337,18 +343,20 @@ for scm_case in $CASE_LIST; do
 
   # Move all runs to a general run directory
   for suite in $SUITE_LIST; do
-    if [[ ! -d "${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}" ]]; then
-      mkdir -p ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
+    if [[ ! -d "${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}" ]]; then
+      mkdir -p ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}
     fi
     for column_area in $COLUMN_AREAS; do
-      for timestep in $TIME_STEPS; do
-        for dti in $PHYSICS_TIME_STEPS; do
-          column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
-          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
-          cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${tag}/${scm_case}/${suite}
-	  # Decide whether to remove the original run directory
-          #rm -rf $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
-        done
+      #n=0
+      for ((n=0; n<${#TIME_STEPS[@]}; n++)); do
+        column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
+        timestep="${TIME_STEPS[n]}"
+	dti="${PHYSICS_TIME_STEPS[n]}"
+        cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
+        cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}
+	# Decide whether to remove the original run directory
+        #rm -rf $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
+	#n=$((n+1))
       done
     done
   done
