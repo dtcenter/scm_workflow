@@ -25,6 +25,9 @@ import scm_read_obs as sro
 Rd = 287.0
 Rv = 461.0
 g = 9.81
+R_dry = 287.0
+c_p = 1004.0
+P0 = 100000.0
 missing_value = -999
 missing_soil_levels = 4
 
@@ -173,11 +176,17 @@ phi_l = []
 phi_i = []
 qv = []
 T = []
+th = []
+rh = []
 u = []
 v = []
 qc = []
 ql = []
 qi = []
+qr = []
+qs = []
+qg = []
+qi_tot = []
 
 qv_force_tend = []
 T_force_tend = []
@@ -410,6 +419,12 @@ for i in range(len(scm_datasets)):
     T.append(nc_fid.variables['T'][:])
     inst_time_group.append('T')
     
+    th.append(T[-1]*(P0/pres_l[-1])**(R_dry/c_p))
+    inst_time_group.append('th')
+    
+    rh.append((qv[-1]*pres_l[-1]/(qv[-1]+(R_dry/Rv)*(1.0-qv[-1])))/(6.1078*np.exp(17.2693882*(T[-1] - 273.16)/(T[-1] - 35.86))*100.0))
+    inst_time_group.append('rh')
+    
     u.append(nc_fid.variables['u'][:])
     inst_time_group.append('u')
     
@@ -425,6 +440,18 @@ for i in range(len(scm_datasets)):
     qi.append(nc_fid.variables['qi'][:])
     inst_time_group.append('qi')
     
+    qr.append(nc_fid.variables['qr'][:])
+    inst_time_group.append('qr')
+    
+    qs.append(nc_fid.variables['qs'][:])
+    inst_time_group.append('qs')
+    
+    qg.append(nc_fid.variables['qg'][:])
+    inst_time_group.append('qg')
+    
+    qi_tot.append(qi[-1] + qs[-1] + qg[-1])
+    inst_time_group.append('qi_tot')
+
     qv_force_tend.append(nc_fid.variables['qv_force_tend'][:])
     inst_time_group.append('qv_force_tend')
     
@@ -1050,22 +1077,21 @@ if(plot_ind_datasets):
                         data_list = []
                         for l in range(len(profiles_mean_multi[multiplot]['vars'])):
                             data = locals()[profiles_mean_multi[multiplot]['vars'][l]]
-                            case_data = data[i]
                             if (profiles_mean_multi[multiplot]['vars'][l] in inst_time_group):
                                 #print("{} in time group inst".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_inst[j][0]:time_slice_indices_inst[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_inst[j][0]:time_slice_indices_inst[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in diag_time_group):
                                 #print("{} in time group diag".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_diag[j][0]:time_slice_indices_diag[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_diag[j][0]:time_slice_indices_diag[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in swrad_time_group):
                                 #print("{} in time group swrad".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_swrad[j][0]:time_slice_indices_swrad[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_swrad[j][0]:time_slice_indices_swrad[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in lwrad_time_group):
                                 #print("{} in time group lwrad".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_lwrad[j][0]:time_slice_indices_lwrad[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_lwrad[j][0]:time_slice_indices_lwrad[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in rad_time_group):
                                 #print("{} in time group rad".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_rad[j][0]:time_slice_indices_rad[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_rad[j][0]:time_slice_indices_rad[j][1],:,:]
                             else:
                                 print("{} not found in any time groups".format(profiles_mean_multi[multiplot]['vars'][l]))
                                 exit()
@@ -1523,24 +1549,23 @@ if(len(scm_datasets) > 1):
                     data_list_of_list = []
                     for l in range(len(profiles_mean_multi[multiplot]['vars'])):
                         data = locals()[profiles_mean_multi[multiplot]['vars'][l]]
-                        case_data = data[i]
                         data_list = []
                         for i in range(len(scm_datasets)):
                             if (profiles_mean_multi[multiplot]['vars'][l] in inst_time_group):
                                 #print("{} in time group inst".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_inst[j][0]:time_slice_indices_inst[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_inst[j][0]:time_slice_indices_inst[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in diag_time_group):
                                 #print("{} in time group diag".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_diag[j][0]:time_slice_indices_diag[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_diag[j][0]:time_slice_indices_diag[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in swrad_time_group):
                                 #print("{} in time group swrad".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_swrad[j][0]:time_slice_indices_swrad[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_swrad[j][0]:time_slice_indices_swrad[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in lwrad_time_group):
                                 #print("{} in time group lwrad".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_lwrad[j][0]:time_slice_indices_lwrad[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_lwrad[j][0]:time_slice_indices_lwrad[j][1],:,:]
                             elif (profiles_mean_multi[multiplot]['vars'][l] in rad_time_group):
                                 #print("{} in time group rad".format(profiles_mean_multi[multiplot]['vars'][l]))
-                                data_time_slice = case_data[time_slice_indices_rad[j][0]:time_slice_indices_rad[j][1],:,:]
+                                data_time_slice = data[i][time_slice_indices_rad[j][0]:time_slice_indices_rad[j][1],:,:]
                             else:
                                 print("{} not found in any time groups".format(profiles_mean_multi[multiplot]['vars'][l]))
                                 exit()
@@ -1712,11 +1737,11 @@ if(len(scm_datasets) > 1):
                                 print('The variable ' + time_series_multi[multiplot]['vars'][l] + ' found in ' + args.config[0] + ' was given an invalid vertical level index: ' + str(time_series_multi[multiplot]['levels'][l]))
                                 continue
                     else:
-                        data = np.array(locals()[time_series_multi[multiplot]['vars'][l]])
+                        data = locals()[time_series_multi[multiplot]['vars'][l]]
                     data_list = []
                     for i in range(len(scm_datasets)):
                         if (time_series_multi[multiplot]['vars'][l] in inst_time_group):
-                            data_time_slice = data[i,time_slice_indices_inst[j][0]:time_slice_indices_inst[j][1]]
+                            data_time_slice = data[i][time_slice_indices_inst[j][0]:time_slice_indices_inst[j][1]]
                             time_h_slice = time_h_inst[0][time_slice_indices_inst[j][0]:time_slice_indices_inst[j][1]]
                             
                             if time_series_resample:
@@ -1728,7 +1753,7 @@ if(len(scm_datasets) > 1):
                                 data_date_range = pd.date_range(start=date_inst[0][time_slice_indices_inst[j][0]], periods=data_time_slice_periods, freq=data_dateoffset)
                                 
                         elif(time_series_multi[multiplot]['vars'][l] in diag_time_group):
-                            data_time_slice = data[i,time_slice_indices_diag[j][0]:time_slice_indices_diag[j][1]]
+                            data_time_slice = data[i][time_slice_indices_diag[j][0]:time_slice_indices_diag[j][1]]
                             time_h_slice = time_h_diag[0][time_slice_indices_diag[j][0]:time_slice_indices_diag[j][1]]
                             
                             if time_series_resample:
@@ -1739,7 +1764,7 @@ if(len(scm_datasets) > 1):
                                 data_time_slice_periods = time_slice_indices_diag[j][1] - time_slice_indices_diag[j][0]
                                 data_date_range = pd.date_range(start=date_diag[0][time_slice_indices_diag[j][0]], periods=data_time_slice_periods, freq=data_dateoffset)
                         elif(time_series_multi[multiplot]['vars'][l] in swrad_time_group):
-                            data_time_slice = data[i,time_slice_indices_swrad[j][0]:time_slice_indices_swrad[j][1]]
+                            data_time_slice = data[i][time_slice_indices_swrad[j][0]:time_slice_indices_swrad[j][1]]
                             time_h_slice = time_h_swrad[0][time_slice_indices_swrad[j][0]:time_slice_indices_swrad[j][1]]
                             
                             if time_series_resample:
@@ -1750,7 +1775,7 @@ if(len(scm_datasets) > 1):
                                 data_time_slice_periods = time_slice_indices_swrad[j][1] - time_slice_indices_swrad[j][0]
                                 data_date_range = pd.date_range(start=date_swrad[0][time_slice_indices_swrad[j][0]], periods=data_time_slice_periods, freq=data_dateoffset)
                         elif(time_series_multi[multiplot]['vars'][l] in lwrad_time_group):
-                            data_time_slice = data[i,time_slice_indices_lwrad[j][0]:time_slice_indices_lwrad[j][1]]
+                            data_time_slice = data[i][time_slice_indices_lwrad[j][0]:time_slice_indices_lwrad[j][1]]
                             time_h_slice = time_h_lwrad[0][time_slice_indices_lwrad[j][0]:time_slice_indices_lwrad[j][1]]
                             
                             if time_series_resample:
@@ -1761,7 +1786,7 @@ if(len(scm_datasets) > 1):
                                 data_time_slice_periods = time_slice_indices_lwrad[j][1] - time_slice_indices_lwrad[j][0]
                                 data_date_range = pd.date_range(start=date_lwrad[0][time_slice_indices_lwrad[j][0]], periods=data_time_slice_periods, freq=data_dateoffset)
                         elif(time_series_multi[multiplot]['vars'][l] in rad_time_group):
-                            data_time_slice = data[i,time_slice_indices_rad[j][0]:time_slice_indices_rad[j][1]]
+                            data_time_slice = data[i][time_slice_indices_rad[j][0]:time_slice_indices_rad[j][1]]
                             time_h_slice = time_h_rad[0][time_slice_indices_rad[j][0]:time_slice_indices_rad[j][1]]
                             
                             if time_series_resample:

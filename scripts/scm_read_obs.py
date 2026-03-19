@@ -38,7 +38,7 @@ def read_MOSAiC_obs(obs_file, time_slices, date):
     obs_pres_l = obs_fid.variables['levels'][:]*100.0 #pressure levels in mb
 
     obs_T = obs_fid.variables['T'][:]
-    obs_q = obs_fid.variables['q'][:]
+    obs_mr = obs_fid.variables['q'][:]
     obs_qi= obs_fid.variables['qi'][:]
     obs_ql= obs_fid.variables['ql'][:]
     obs_u = obs_fid.variables['u'][:]
@@ -55,16 +55,20 @@ def read_MOSAiC_obs(obs_file, time_slices, date):
 
     Rd = 287.0
     Rv = 461.0
+    P0 = 100000.0
+    c_p = 1004.0
 
+    obs_q = obs_mr/(1.0 + obs_mr)
     e_s = 6.1078*np.exp(17.2693882*(obs_T - 273.16)/(obs_T - 35.86))*100.0 #Tetens formula produces e_s in mb (convert to Pa)
     e = obs_q*obs_pres_l/(obs_q + (Rd/Rv)*(1.0 - obs_q)) #compute vapor pressure from specific humidity
     obs_rh = np.clip(e/e_s, 0.0, 1.0)
+    obs_th = obs_T*(P0/obs_pres_l)**(Rd/c_p)
 
     return_dict = {'year': obs_year, 'month': obs_month, 'day': obs_day, 'hour': obs_hour,
       'time': obs_time, 'date': obs_date, 'time_slice_indices': obs_time_slice_indices,
-      'pres_l': obs_pres_l, 'T': obs_T, 'q': obs_q, 'rh': obs_rh, 'u': obs_u, 'v': obs_v, 'shf': obs_shf,
+      'pres_l': obs_pres_l, 'T': obs_T, 'th': obs_th, 'q': obs_q, 'rh': obs_rh, 'u': obs_u, 'v': obs_v, 'shf': obs_shf,
       'lhf': obs_lhf, 't2m': obs_t2m, 'q2m': obs_q2m, 'time_h': obs_time_h, 'tsfc': obs_tsk,
-      'qv': obs_q, 'qi': obs_qi, 'ql': obs_ql, 'rad_net_srf': obs_rad_net_srf, 'sfc_dwn_lw': obs_lw_dn_srf}
+      'qv': obs_q, 'qi_tot': obs_qi, 'ql': obs_ql, 'rad_net_srf': obs_rad_net_srf, 'sfc_dwn_lw': obs_lw_dn_srf}
 #      'lwp': obs_lwp, 'T_force_tend': obs_T_forcing, 'qv_force_tend': obs_q_forcing}
 
     obs_fid.close()
