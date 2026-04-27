@@ -138,7 +138,7 @@ Within the <div> class, add a line:
 
    <a href="viewer.html?config={scm_tag}">{label}</a>
 
-replacing ``{scm_tag} with the actual ``scm_tag`` from the ``run_scm_workflow.sh`` and replacing
+replacing ``{scm_tag}`` with the actual ``scm_tag`` from the ``run_scm_workflow.sh`` and replacing
 ``{label}`` with the desired title for the main page configuration selection.
 
 Add, commit, and push the ``scm_workflow/scm_plots/${PLOT_DIR}`` and the
