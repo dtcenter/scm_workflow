@@ -150,8 +150,8 @@ Add, commit, and push the ``scm_workflow/scm_plots/${PLOT_DIR}`` and the
    git commit -m 'commit message'
    git push origin gh_pages
 
-  .. note::
-     The paths in ``git add`` should be relative to your current location.
+.. note::
+   The paths in ``git add`` should be relative to your current location.
 
 Ensure the ``gh_pages`` branch is setup for deployment. In your GitHub scm_workflow repository, select
 the ``settings`` tab, and then navigate to ``Pages`` in the left sidebar. Ensure that the Source is set
