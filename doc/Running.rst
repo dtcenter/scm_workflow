@@ -119,40 +119,44 @@ As the workflow runs, it will perform the following steps:
 
 #. A java script config file will be created in ``scm_workflow/scm_plots/${PLOT_DIR}`` used for viewing
    the plots via github pages. This config and the plots will need to be manually pushed to github as 
-   the workflow does not currently perform this task. Steps to do this are outlined below.
+   the workflow does not currently perform this task. Steps to do this are outlined in Section 2.2.
 
-   * If it does not already exist, create a new branch off of ``main`` in the scm_workflow.
+==================
+Github Pages Setup
+==================
 
-     .. code-block:: console
+If it does not already exist, create a new branch off of ``main`` in the scm_workflow.
 
-     git checkout -b gh_pages
+.. code-block:: console
 
-   * Modify ``scm_workflow/scripts/html/index.html`` to add your new run(s) to the main page selection.
-     Within the <div> class, add a line:
+   git checkout -b gh_pages
 
-       .. code-block:: console
+Modify ``scm_workflow/scripts/html/index.html`` to add your new run(s) to the main page selection.
+Within the <div> class, add a line:
 
-       <a href="viewer.html?config={scm_tag}">{label}</a>
+.. code-block:: console
 
-     replacing ``{scm_tag} with the actual ``scm_tag`` from the ``run_scm_workflow.sh`` and replacing
-     ``{label}`` with the desired title for the main page configuration selection.
+   <a href="viewer.html?config={scm_tag}">{label}</a>
 
-   * Add, commit, and push the ``scm_workflow/scm_plots/${PLOT_DIR}`` and the
-     ``scm_workflow/scripts/html/index.html``.
+replacing ``{scm_tag} with the actual ``scm_tag`` from the ``run_scm_workflow.sh`` and replacing
+``{label}`` with the desired title for the main page configuration selection.
+
+Add, commit, and push the ``scm_workflow/scm_plots/${PLOT_DIR}`` and the
+``scm_workflow/scripts/html/index.html``.
      
-       .. code-block:: console
+.. code-block:: console
 
-       git add scm_workflow/scm_plots/${PLOT_DIR} scm_workflow/scripts/html/index.html
-       git commit -m 'commit message'
-       git push origin gh_pages
+   git add scm_workflow/scm_plots/${PLOT_DIR} scm_workflow/scripts/html/index.html
+   git commit -m 'commit message'
+   git push origin gh_pages
 
-        .. note::
-        The paths in ``git add`` should be relative to your current location.
+.. note::
+The paths in ``git add`` should be relative to your current location.
 
-   * Ensure the ``gh_pages`` branch is setup for deployment. In your
-     https://github.com/{org/fork_name}/scm_workflow repository, select the ``settings`` tab, and then
-     navigate to ``Pages`` in the left sidebar. Ensure that the Source is set to ``Deploy from a
-     branch`` and select the branch to use, e.g. gh_pages.
+Ensure the ``gh_pages`` branch is setup for deployment. In your
+https://github.com/{org/fork_name}/scm_workflow repository, select the ``settings`` tab, and then
+navigate to ``Pages`` in the left sidebar. Ensure that the Source is set to ``Deploy from a branch``
+and select the branch to use, e.g. gh_pages.
 
-   * Open the URL (e.g. https://{org/fork_name}.github.io/scm_workflow/) in you browser to select a
-     configuration and view the plots.
+Open the URL (e.g. https://{org/fork_name}.github.io/scm_workflow/) in you browser to select a
+configuration and view the plots.
