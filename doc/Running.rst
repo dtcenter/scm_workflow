@@ -112,7 +112,7 @@ As the workflow runs, it will perform the following steps:
    ``scm_workflow/scm_runs/${scm_tag}``.
 
    .. note::
-   The workflow will skip any pre-existing runs unless you turn on ``rerun_cases``.
+      The workflow will skip any pre-existing runs unless you turn on ``rerun_cases``.
 
 #. For each case, plots listed in ``scripts/plot_config_template.ini`` will be created and placed in a
    directory ``scm_workflow/scm_plots/${PLOT_DIR}``.
@@ -151,7 +151,7 @@ Add, commit, and push the ``scm_workflow/scm_plots/${PLOT_DIR}`` and the
    git push origin gh_pages
 
   .. note::
-  The paths in ``git add`` should be relative to your current location.
+     The paths in ``git add`` should be relative to your current location.
 
 Ensure the ``gh_pages`` branch is setup for deployment. In your GitHub scm_workflow repository, select
 the ``settings`` tab, and then navigate to ``Pages`` in the left sidebar. Ensure that the Source is set
