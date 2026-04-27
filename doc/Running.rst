@@ -153,10 +153,9 @@ Add, commit, and push the ``scm_workflow/scm_plots/${PLOT_DIR}`` and the
 .. note::
 The paths in ``git add`` should be relative to your current location.
 
-Ensure the ``gh_pages`` branch is setup for deployment. In your
-<https://github.com/{org/fork_name}/scm_workflow> repository, select the ``settings`` tab, and then
-navigate to ``Pages`` in the left sidebar. Ensure that the Source is set to ``Deploy from a branch``
-and select the branch to use, e.g. gh_pages.
+Ensure the ``gh_pages`` branch is setup for deployment. In your GitHub scm_workflow repository, select
+the ``settings`` tab, and then navigate to ``Pages`` in the left sidebar. Ensure that the Source is set
+to ``Deploy from a branch`` and select the branch to use, e.g. gh_pages.
 
-Open the URL (e.g. <https://{org/fork_name}.github.io/scm_workflow>) in you browser to select a
+Open the URL (e.g. \https://{org/fork_name}.github.io/scm_workflow) in you browser to select a
 configuration and view the plots.
