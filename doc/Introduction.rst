@@ -2,9 +2,8 @@
 Introduction
 ************
 
-The Single Column Model (SCM) testing and evaluation workflow is designed to streamline and accelerate
-model physics assessment. It provides an end-to-end framework, from building the SCM and running
-well-established SCM cases studies representing a range of physical phenomina to post-processing and
+The Common Community Physics Package Single Column Model (CCPP SCM) testing and evaluation workflow is designed to streamline and accelerate
+model physics assessment. It provides an end-to-end framework, from building the CCPP SCM and running CCPP SCM cases studies representing a range of physical phenomina to post-processing and
 visualization.
 
 The workflow currently supports the following cases:
@@ -14,6 +13,6 @@ The workflow currently supports the following cases:
   - MPACE_REF: Arctic mixed-phase clouds
   - MOSAiC AMPS: Arctic mixed-phase clouds
   - MOSAiC SS: Stably stratified boundary layer
-  - twpice: Marine deep convection
+  - TWP-ICE: Marine deep convection
 
 The framework is also easily extensible to additional cases.

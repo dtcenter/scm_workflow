@@ -13,11 +13,11 @@ CASE_LIST='MAGIC_LEG15A MAGIC_LEG12A MOSAiC-AMPS COMBLE MPACE_REF'
 # List of suites to test
 SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
-# List of column areas in m^2 - could also change to column dx in km (more user friendly?)
+# List of column areas in m^2 - could also change to column dx in km (more user friendly?) - yes, km is more user friendly but don't have to implement it in this preliminary version
 # *If left empty, uses default in case config nml
 COLUMN_AREAS=''
 
-# List of time steps and respecitve inner timesteps and output frequencies
+# List of time steps, respecitve inner timesteps for Thompson or TEMPO microphysics, and output/diagnostic frequencies
 TIME_STEPS=(600 600 600 300 300 150)
 PHYSICS_TIME_STEPS=(300 150 75 150 75 75)
 OUT_FREQS=(1 1 1 2 2 4)
@@ -27,10 +27,10 @@ DIAG_FREQS=(1 1 1 2 2 4)
 PLATFORM='ursa'
 COMPILER='gnu'
 
-# Flag for type of SCM repo to use (github/local)
+# Flag for type of CCPP SCM repo to use (github/local)
 scm_type='local'
 
-# If using SMC Github repo, supply the url and branch
+# If using CCPP SCM Github repo, supply the url and branch
 GIT_URL='https://github.com/NCAR/ccpp-scm.git'
 GIT_BRANCH='main'
 scm_tag='tempo'
@@ -39,7 +39,7 @@ scm_tag='tempo'
 local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm-tempo'
 
 # Build switches
-make_build='False'
+make_build='False' 
 build_32bit='False'
 
 # Run option to skip existing runs or not
