@@ -1,9 +1,12 @@
 {
-  "base_plot_dir": "../../scm_plots/plots_tempo_tempov3",
+  "base_plot_dir": "../../scm_plots/plots_dtdiv2_comp",
   "cases": {
     "COMBLE": {
       "label": "COMBLE",
       "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
         "GFS_v17_p8_ugwpv1_tempo": {
           "label": "GFS_v17_p8_ugwpv1_tempo"
         },
@@ -53,6 +56,7 @@
             "profiles_mean_ql.png": "Ql",
             "profiles_mean_qr.png": "Qr",
             "profiles_mean_qc.png": "Qc",
+            "profiles_mean_multi_effective_radius.png": "multi_effective_radius",
             "profiles_mean_dT_dt_conv.png": "dTdt_conv",
             "profiles_mean_dT_dt_deepconv.png": "dTdt_deepconv",
             "profiles_mean_dT_dt_shalconv.png": "dTdt_shalconv",
@@ -76,8 +80,7 @@
             "profiles_mean_multi_u_tendencies.png": "multi_u_tendencies",
             "profiles_mean_multi_v_tendencies.png": "multi_v_tendencies",
             "profiles_mean_multi_u_force_phys.png": "multi_u_force_phys",
-            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys",
-            "profiles_mean_multi_effective_radius.png": "multi_effective_radius"
+            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys"
           }
         },
         "bias": {
@@ -133,6 +136,9 @@
     "MAGIC_LEG12A": {
       "label": "MAGIC_LEG12A",
       "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
         "GFS_v17_p8_ugwpv1_tempo": {
           "label": "GFS_v17_p8_ugwpv1_tempo"
         },
@@ -182,6 +188,7 @@
             "profiles_mean_ql.png": "Ql",
             "profiles_mean_qr.png": "Qr",
             "profiles_mean_qc.png": "Qc",
+            "profiles_mean_multi_effective_radius.png": "multi_effective_radius",
             "profiles_mean_dT_dt_conv.png": "dTdt_conv",
             "profiles_mean_dT_dt_deepconv.png": "dTdt_deepconv",
             "profiles_mean_dT_dt_shalconv.png": "dTdt_shalconv",
@@ -205,8 +212,7 @@
             "profiles_mean_multi_u_tendencies.png": "multi_u_tendencies",
             "profiles_mean_multi_v_tendencies.png": "multi_v_tendencies",
             "profiles_mean_multi_u_force_phys.png": "multi_u_force_phys",
-            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys",
-            "profiles_mean_multi_effective_radius.png": "multi_effective_radius"
+            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys"
           }
         },
         "bias": {
@@ -262,6 +268,9 @@
     "MAGIC_LEG15A": {
       "label": "MAGIC_LEG15A",
       "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
         "GFS_v17_p8_ugwpv1_tempo": {
           "label": "GFS_v17_p8_ugwpv1_tempo"
         },
@@ -311,6 +320,7 @@
             "profiles_mean_ql.png": "Ql",
             "profiles_mean_qr.png": "Qr",
             "profiles_mean_qc.png": "Qc",
+            "profiles_mean_multi_effective_radius.png": "multi_effective_radius",
             "profiles_mean_dT_dt_conv.png": "dTdt_conv",
             "profiles_mean_dT_dt_deepconv.png": "dTdt_deepconv",
             "profiles_mean_dT_dt_shalconv.png": "dTdt_shalconv",
@@ -334,8 +344,7 @@
             "profiles_mean_multi_u_tendencies.png": "multi_u_tendencies",
             "profiles_mean_multi_v_tendencies.png": "multi_v_tendencies",
             "profiles_mean_multi_u_force_phys.png": "multi_u_force_phys",
-            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys",
-            "profiles_mean_multi_effective_radius.png": "multi_effective_radius"
+            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys"
           }
         },
         "bias": {
@@ -391,6 +400,9 @@
     "MOSAiC-AMPS": {
       "label": "MOSAiC-AMPS",
       "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
         "GFS_v17_p8_ugwpv1_tempo": {
           "label": "GFS_v17_p8_ugwpv1_tempo"
         },
@@ -440,6 +452,7 @@
             "profiles_mean_ql.png": "Ql",
             "profiles_mean_qr.png": "Qr",
             "profiles_mean_qc.png": "Qc",
+            "profiles_mean_multi_effective_radius.png": "multi_effective_radius",
             "profiles_mean_dT_dt_conv.png": "dTdt_conv",
             "profiles_mean_dT_dt_deepconv.png": "dTdt_deepconv",
             "profiles_mean_dT_dt_shalconv.png": "dTdt_shalconv",
@@ -463,8 +476,7 @@
             "profiles_mean_multi_u_tendencies.png": "multi_u_tendencies",
             "profiles_mean_multi_v_tendencies.png": "multi_v_tendencies",
             "profiles_mean_multi_u_force_phys.png": "multi_u_force_phys",
-            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys",
-            "profiles_mean_multi_effective_radius.png": "multi_effective_radius"
+            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys"
           }
         },
         "bias": {
@@ -520,6 +532,9 @@
     "MPACE_REF": {
       "label": "MPACE_REF",
       "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
         "GFS_v17_p8_ugwpv1_tempo": {
           "label": "GFS_v17_p8_ugwpv1_tempo"
         },
@@ -569,6 +584,7 @@
             "profiles_mean_ql.png": "Ql",
             "profiles_mean_qr.png": "Qr",
             "profiles_mean_qc.png": "Qc",
+            "profiles_mean_multi_effective_radius.png": "multi_effective_radius",
             "profiles_mean_dT_dt_conv.png": "dTdt_conv",
             "profiles_mean_dT_dt_deepconv.png": "dTdt_deepconv",
             "profiles_mean_dT_dt_shalconv.png": "dTdt_shalconv",
@@ -592,8 +608,7 @@
             "profiles_mean_multi_u_tendencies.png": "multi_u_tendencies",
             "profiles_mean_multi_v_tendencies.png": "multi_v_tendencies",
             "profiles_mean_multi_u_force_phys.png": "multi_u_force_phys",
-            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys",
-            "profiles_mean_multi_effective_radius.png": "multi_effective_radius"
+            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys"
           }
         },
         "bias": {

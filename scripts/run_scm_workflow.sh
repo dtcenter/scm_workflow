@@ -8,20 +8,20 @@
 
 # List of cases to test - note - forcing data for each case may be in separate directories
 # Currently supported: twpice, MAGIC_LEG12A, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, MPACE_REF
-CASE_LIST='MAGIC_LEG15A MAGIC_LEG12A MOSAiC-AMPS COMBLE MPACE_REF'
+CASE_LIST='MAGIC_LEG15A COMBLE MPACE_REF MOSAiC-AMPS MAGIC_LEG12A'
 
 # List of suites to test
-SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
+SUITE_LIST='SCM_GFS_v17_p8_ugwpv1 SCM_GFS_v17_p8_ugwpv1_tempo'
 
 # List of column areas in m^2 - could also change to column dx in km (more user friendly?)
 # *If left empty, uses default in case config nml
 COLUMN_AREAS=''
 
 # List of time steps and respecitve inner timesteps and output frequencies
-TIME_STEPS=(600 600 600 300 300 150)
-PHYSICS_TIME_STEPS=(300 150 75 150 75 75)
-OUT_FREQS=(1 1 1 2 2 4)
-DIAG_FREQS=(1 1 1 2 2 4)
+TIME_STEPS=(600 300 150)
+PHYSICS_TIME_STEPS=(300 150 75)
+OUT_FREQS=(1 2 4)
+DIAG_FREQS=(1 2 4)
 
 # Platform (Hera/Derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
@@ -33,13 +33,13 @@ scm_type='local'
 # If using SMC Github repo, supply the url and branch
 GIT_URL='https://github.com/NCAR/ccpp-scm.git'
 GIT_BRANCH='main'
-scm_tag='tempo'
+scm_tag='test'
 
 # If using local SCM repo, supply the directory path
-local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm-tempo'
+local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm_tempov3'
 
 # Build switches
-make_build='False'
+make_build='True'
 build_32bit='False'
 
 # Run option to skip existing runs or not
@@ -48,10 +48,11 @@ rerun_cases='False'
 # Tag used for directory naming for the set of scm runs
 
 # Plotting options
-plot_tag='tempo_thomp'
+plot_tag='dtdiv2_comp'
 PLOT_DIR=plots_${plot_tag}
 # Cases that do not support obs comparisons are hard-coded to False
 OBS_COMPARE='True'
+TS_RESAMPLE='True'
 
 # Option to compare to a local baseline(s)
 # Comma-separated if appending more than one baseline
@@ -374,11 +375,13 @@ for scm_case in $CASE_LIST; do
     START_TIME="2013, 6, 8, 17, 45"
     END_TIME="2013, 6, 8, 21, 45"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   elif [[ "$scm_case" == MAGIC_LEG15A ]]; then
     OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   elif [[ "$scm_case" == twpice ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
     START_TIME="2006, 1, 20, 0"
@@ -399,11 +402,13 @@ for scm_case in $CASE_LIST; do
     START_TIME="2020, 3, 13, 1"
     END_TIME="2020, 3, 13, 18"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   elif [[ "$scm_case" == MPACE_REF ]]; then
     OBS_FILE=""
     START_TIME="2004, 10, 9, 17"
     END_TIME="2004, 10, 10, 17"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   else
     OBS_FILE=""
   fi
@@ -419,6 +424,7 @@ for scm_case in $CASE_LIST; do
   export PLOT_DIR
   export OBS_FILE
   export OBS_COMPARE
+  export TS_RESAMPLE
   export START_TIME
   export END_TIME
   export scm_case
