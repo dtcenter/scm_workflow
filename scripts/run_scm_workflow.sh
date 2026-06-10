@@ -485,4 +485,4 @@ for scm_case in $CASE_LIST; do
 
 done
 
-python ${SCRIPT_DIR}/html/generate_config.py
+python ${BASE_DIR}/docs/html/generate_config.py
