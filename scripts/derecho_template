@@ -1,0 +1,18 @@
+#!/bin/ksh
+#PBS -N scm_run
+#PBS -A P48503002
+#PBS -l select=1:ncpus=1:mpiprocs=1
+#PBS -j oe
+#PBS -q main 
+#PBS -l walltime=00:20:00
+
+module purge
+module use /glade/work/hertneky/phys_tne/scm_workflow/scm_builds/ccpp-scm-test/scm/etc/modules
+ml derecho_gnu
+
+RUN_COMMAND
+
+exit
+
+
+
