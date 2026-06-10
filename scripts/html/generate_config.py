@@ -66,7 +66,7 @@ config = {
     "cases": cases
 }
 
-config_path = os.path.join(SCRIPT_DIR,"config.json")
+config_path = os.path.join(PLOT_ROOT,"config.json")
 
 with open(config_path, "w") as f:
     json.dump(config, f, indent=2)

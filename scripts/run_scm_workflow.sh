@@ -2,10 +2,10 @@
 
 # List of cases to test
 # Currently supported: twpice, MAGIC_LEG12A, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, MPACE_REF
-CASE_LIST='MOSAiC-AMPS'
+CASE_LIST='MAGIC_LEG15A'
 
 # List of suites to test
-SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
+SUITE_LIST='SCM_GFS_v17_p8_ugwpv1 SCM_GFS_v17_p8_ugwpv1_tempo'
 
 # List of column areas in m^2
 # *If left empty, uses default in case config nml
@@ -13,16 +13,16 @@ COLUMN_AREAS=''
 
 # List of time steps and respecitve inner timesteps and output frequencies
 TIME_STEPS=(600 300)
-PHYSICS_TIME_STEPS=(300 150)
+DT_INNER=(300 150)
 OUT_FREQS=(1 2)
 DIAG_FREQS=(1 2)
 
 # Platform (ursa/derecho) and compiler (intel/gnu)
-PLATFORM='derecho'
+PLATFORM='ursa'
 COMPILER='gnu'
 
 # Flag for type of SCM repo to use (github/local)
-scm_type='github'
+scm_type='local'
 
 # If using SMC Github repo, supply the url and branch
 GIT_URL='https://github.com/NCAR/ccpp-scm.git'
@@ -33,7 +33,7 @@ scm_tag='test'
 local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm_tempov3'
 
 # Build switches
-make_build='True'
+make_build='False'
 build_32bit='False'
 
 # Run option to skip existing runs or not
@@ -120,7 +120,8 @@ if [ $make_build == 'True' ]; then
     module purge
     MODULE_PATH="$SCM_DIR/scm/etc/modules"
     module use "$MODULE_PATH"
-    module load "${PLATFORM}_${COMPILER}"
+    #module load "${PLATFORM}_${COMPILER}"
+    module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
     sleep 2
 
     cd $SCM_DIR/scm && mkdir bin && cd bin
@@ -205,7 +206,8 @@ for scm_case in $CASE_LIST; do
   module purge
   MODULE_PATH="$SCM_DIR/scm/etc/modules"
   module use "$MODULE_PATH"
-  module load "${PLATFORM}_${COMPILER}"
+  #module load "${PLATFORM}_${COMPILER}"
+  module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
   sleep 5
 
   # Build captions
@@ -225,8 +227,8 @@ for scm_case in $CASE_LIST; do
     [[ "$v" != "$first" ]] && first="" && break
   done
   [[ -n "$first" ]] && caption+=(" dt: ${first}s")
-  first=${PHYSICS_TIME_STEPS[0]}
-  for v in "${PHYSICS_TIME_STEPS[@]}"; do
+  first=${DT_INNER[0]}
+  for v in "${DT_INNER[@]}"; do
     [[ "$v" != "$first" ]] && first="" && break
   done
   [[ -n "$first" ]] && caption+=(" dti: ${first}s")
@@ -243,7 +245,7 @@ for scm_case in $CASE_LIST; do
       for ((n=0; n<${#TIME_STEPS[@]}; n++)); do
 
 	timestep="${TIME_STEPS[n]}"
-	dti="${PHYSICS_TIME_STEPS[n]}"
+	dti="${DT_INNER[n]}"
         out_freq="${OUT_FREQS[n]}"
         diag_freq="${DIAG_FREQS[n]}"
 
@@ -269,7 +271,7 @@ for scm_case in $CASE_LIST; do
 	if [ "$dt_unique" -gt 1 ]; then
           label+=("dt${timestep}s")
         fi
-        dti_unique=$(printf "%s\n" "${PHYSICS_TIME_STEPS[@]}" | sort -u | wc -l)
+        dti_unique=$(printf "%s\n" "${DT_INNER[@]}" | sort -u | wc -l)
 	if [ "$dti_unique" -gt 1 ]; then
           label+=("dti${dti}s")
         fi
@@ -284,8 +286,8 @@ for scm_case in $CASE_LIST; do
 
         # Build the run command, appending CASE_DATA_DIR for DEPHY repo cases
         cd "$SCM_DIR/scm/bin"
-	cp ${SCRIPT_DIR}/run_scm.py .
-        RUN_COMMAND="./run_scm.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
+	cp ${SCRIPT_DIR}/run_scm.py run_scm_wf.py
+        RUN_COMMAND="./run_scm_wf.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
 	echo $RUN_COMMAND
         if [ -n "${CASE_DATA_DIR}" ]; then
           RUN_COMMAND="${RUN_COMMAND} --case_data_dir ${CASE_DATA_DIR}"
@@ -356,7 +358,7 @@ for scm_case in $CASE_LIST; do
       for ((n=0; n<${#TIME_STEPS[@]}; n++)); do
         column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
         timestep="${TIME_STEPS[n]}"
-	dti="${PHYSICS_TIME_STEPS[n]}"
+	dti="${DT_INNER[n]}"
         cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
         cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}
       done
@@ -376,40 +378,43 @@ for scm_case in $CASE_LIST; do
     START_TIME="2013, 6, 8, 17, 45"
     END_TIME="2013, 6, 8, 21, 45"
     OBS_COMPARE='False'
-    TS_RESAMPLE='FALSE'
+    TS_RESAMPLE='False'
   elif [[ "$scm_case" == MAGIC_LEG15A ]]; then
     OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
-    OBS_COMPARE='False'
-    TS_RESAMPLE='FALSE'
+    OBS_COMPARE='True'
+    TS_RESAMPLE='True'
   elif [[ "$scm_case" == twpice ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
     START_TIME="2006, 1, 20, 0"
     END_TIME="2006, 1, 23, 0"
     OBS_COMPARE='True'
+    TS_RESAMPLE='True'
   elif [[ "$scm_case" == MOSAiC-AMPS ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_31Oct20190Z_raw.nc"
     START_TIME="2019, 11, 1, 0"
     END_TIME="2019, 11, 2, 0"
     OBS_COMPARE='True'
+    TS_RESAMPLE='True'
   elif [[ "$scm_case" == MOSAiC-SS ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/MOSAiC_2Mar20200Z_raw.nc"
     START_TIME="2020, 3, 4, 0"
     END_TIME="2020, 3, 5, 0"
     OBS_COMPARE='True'
+    TS_RESAMPLE='True'
   elif [[ "$scm_case" == COMBLE ]]; then
     OBS_FILE=""
     START_TIME="2020, 3, 13, 1"
     END_TIME="2020, 3, 13, 18"
     OBS_COMPARE='False'
-    TS_RESAMPLE='FALSE'
+    TS_RESAMPLE='False'
   elif [[ "$scm_case" == MPACE_REF ]]; then
     OBS_FILE=""
     START_TIME="2004, 10, 9, 17"
     END_TIME="2004, 10, 10, 17"
     OBS_COMPARE='False'
-    TS_RESAMPLE='FALSE'
+    TS_RESAMPLE='False'
   else
     OBS_FILE=""
   fi
