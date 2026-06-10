@@ -1215,7 +1215,17 @@ if(plot_ind_datasets):
 
                                 spr.plot_time_series_multi(obs_date_range, [data_time_slice_series_rs], [scm_datasets_labels[i]], 'date', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_date_range, obs_values = obs_data_time_slice, line_type='color', color_index=i, conversion_factor=conversion_factor)
                             elif(obs_delta_seconds < data_delta_seconds):
-                                print('The case where observations are more frequent than model output has not been implmented yet... ')
+                                #print('The case where observations are more frequent than model output has not been implmented yet... ')
+                                #create date range for the obs data
+                                obs_data_dateoffset = pd.DateOffset(seconds=int(obs_delta_seconds))
+                                obs_time_slice_periods = obs_dict['time_slice_indices'][j][1] - obs_dict['time_slice_indices'][j][0]
+                                obs_date_range = pd.date_range(start=obs_dict['date'][obs_dict['time_slice_indices'][j][0]], periods=obs_time_slice_periods, freq=obs_data_dateoffset)
+
+                                resample_string = str(int(data_delta_seconds)) + 's'
+                                obs_time_slice_series = pd.Series(obs_data_time_slice, index = obs_date_range)
+                                obs_time_slice_series_rs = obs_time_slice_series.resample(resample_string).mean()
+    
+                                spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = time_h_slice, obs_values = obs_time_slice_series_rs[1::], line_type='color', color_index=i, conversion_factor=conversion_factor)                               
                             else:
                                 obs_time_time_slice = obs_time_h[obs_time_slice_indices[j][0]:obs_time_slice_indices[j][1]]
                                 spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color', color_index=i, conversion_factor=conversion_factor)
@@ -1348,7 +1358,20 @@ if(plot_ind_datasets):
 
                                 spr.plot_time_series_multi(obs_date_range, data_list_rs, time_series_multi[multiplot]['vars_labels'], 'date', time_series_multi[multiplot]['y_label'], ind_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = obs_date_range, obs_values = obs_data_time_slice, obs_label = time_series_multi[multiplot]['obs_var_label'], line_type='style', color_index=i, conversion_factor=conversion_factor)
                             elif(obs_delta_seconds < data_delta_seconds):
-                                print('The case where observations are more frequent than model output has not been implmented yet... ')
+                                #print('The case where observations are more frequent than model output has not been implmented yet... ')
+                                #create date range for the obs data
+                                obs_data_dateoffset = pd.DateOffset(seconds=int(obs_delta_seconds))
+                                obs_time_slice_periods = obs_dict['time_slice_indices'][j][1] - obs_dict['time_slice_indices'][j][0]
+                                obs_date_range = pd.date_range(start=obs_dict['date'][obs_dict['time_slice_indices'][j][0]], periods=obs_time_slice_periods, freq=obs_data_dateoffset)
+
+                                resample_string = str(int(data_delta_seconds)) + 's'
+                                obs_data_time_slice_rs = []
+                                for l in range(len(data_list)):
+                                    obs_time_slice_series = pd.Series(obs_data_time_slice[l][:,0], index = obs_date_range)
+                                    obs_time_slice_series_rs = obs_time_slice_series.resample(resample_string).mean()
+                                    obs_data_time_slice_rs.append(obs_time_slice_series_rs)
+
+                                spr.plot_time_series_multi(time_h_slice, data_list, time_series_multi[multiplot]['vars_labels'], 'time (h)', time_series_multi[multiplot]['y_label'], ind_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = time_h_slice, obs_values = obs_data_time_slice_rs, obs_label = time_series_multi[multiplot]['obs_var_label'], line_type='style', color_index=i, conversion_factor=conversion_factor)                                                             
                             else:
                                 obs_time_time_slice = obs_time_h[obs_time_slice_indices[j][0]:obs_time_slice_indices[j][1]]
                                 spr.plot_time_series_multi(time_h_slice, data_list, time_series_multi[multiplot]['vars_labels'], 'time (h)', time_series_multi[multiplot]['y_label'], ind_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, obs_label = time_series_multi[multiplot]['obs_var_label'], line_type='style', color_index=i, conversion_factor=conversion_factor)
@@ -1430,6 +1453,10 @@ if(plot_ind_datasets):
                             continue
                         if not np.isfinite(x_ticks_val[0]) or not np.isfinite(x_ticks_val[1]):
                             print(f"Skipping {contours['vars'][k]} due to invalid x ticks")
+                            continue
+                       
+                        if np.nanmin(data_time_slice[:,0:vert_axis_top_index,0]) == np.nanmax(data_time_slice[:,0:vert_axis_top_index,0]):
+                            print(f"The plot named {contours['vars'][k]} will not be created due to constant field")
                             continue
 
                         spr.contour_plot_firl(time_h_slice, vert_axis, np.transpose(data_time_slice[:,:,0]), np.nanmin(data_time_slice[:,0:vert_axis_top_index,0]), np.nanmax(data_time_slice[:,0:vert_axis_top_index,0]), label, 'time (h)', vert_axis_label_c, ind_dir + '/contour_' + contours['vars'][k] + plot_ext, xticks=x_ticks_val, yticks=y_ticks_val, y_inverted=y_inverted_val_c, y_log = y_log_val_c, y_lim = y_lim_val, conversion_factor=conversion_factor)
@@ -1694,7 +1721,21 @@ if(len(scm_datasets) > 1):
 
                             spr.plot_time_series_multi(obs_date_range, data_time_slice_series_rs, scm_datasets_labels, 'date', label, comp_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_date_range, obs_values = obs_data_time_slice, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)
                         elif(obs_delta_seconds < data_delta_seconds):
-                            print('The case where observations are more frequent than model output has not been implmented yet... ')
+                            #print('The case where observations are more frequent than model output has not been implmented yet... ')
+                            #create date range for the obs data
+                            obs_data_dateoffset = pd.DateOffset(seconds=int(obs_delta_seconds))
+                            obs_time_slice_periods = obs_dict['time_slice_indices'][j][1] - obs_dict['time_slice_indices'][j][0]
+                            obs_date_range = pd.date_range(start=obs_dict['date'][obs_dict['time_slice_indices'][j][0]], periods=obs_time_slice_periods, freq=obs_data_dateoffset)
+
+                            resample_string = str(int(data_delta_seconds)) + 's'
+                            
+                            #build list of resampled model datasets for this time slice
+                            obs_time_slice_series_rs = []
+                            obs_time_slice_series = pd.Series(obs_data_time_slice, index = obs_date_range)
+                            obs_time_slice_series_rs.append(obs_time_slice_series.resample(resample_string).mean())                            
+                            obs_time_slice_series_rs = np.array(obs_time_slice_series_rs)
+                                                                                              
+                            spr.plot_time_series_multi(time_h_slice, data_time_slice, scm_datasets_labels, 'time (h)', label, comp_dir + '/time_series_' + plot_name + plot_ext, obs_time = time_h_slice, obs_values = obs_time_slice_series_rs, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)                            
                         else:
                             obs_time_time_slice = obs_dict['time_h'][obs_dict['time_slice_indices'][j][0]:obs_dict['time_slice_indices'][j][1]]
                             spr.plot_time_series_multi(time_h_slice, data_time_slice, scm_datasets_labels, 'time (h)', label, comp_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)
@@ -1829,7 +1870,20 @@ if(len(scm_datasets) > 1):
 
                             spr.plot_time_series_multi(obs_date_range, data_list_of_list_rs, [time_series_multi[multiplot]['vars_labels'],scm_datasets_labels], 'date', time_series_multi[multiplot]['y_label'], comp_dir + '/time_series_multi_' + multiplot + plot_ext, conversion_factor=conversion_factor)#, obs_time = obs_date_range, obs_values = obs_data_time_slice, obs_label = time_series_multi[multiplot]['obs_var_label'])
                         elif(obs_delta_seconds < data_delta_seconds):
-                            print('The case where observations are more frequent than model output has not been implmented yet... ')
+                            #print('The case where observations are more frequent than model output has not been implmented yet... ')
+                            #create date range for the obs data
+                            obs_data_dateoffset = pd.DateOffset(seconds=int(obs_delta_seconds))
+                            obs_time_slice_periods = obs_dict['time_slice_indices'][j][1] - obs_dict['time_slice_indices'][j][0]
+                            obs_date_range = pd.date_range(start=obs_dict['date'][obs_dict['time_slice_indices'][j][0]], periods=obs_time_slice_periods, freq=obs_data_dateoffset)
+
+                            resample_string = str(int(data_delta_seconds)) + 's'
+                            obs_data_time_slice_rs = []
+                            for l in range(len(data_list_of_list)):
+                                obs_time_slice_series = pd.Series(obs_data_time_slice[l][:,0], index = obs_date_range)
+                                obs_time_slice_series_rs = obs_time_slice_series.resample(resample_string).mean()
+                                obs_data_time_slice_rs.append(obs_time_slice_series_rs)
+
+                            spr.plot_time_series_multi(time_h_slice, data_list, time_series_multi[multiplot]['vars_labels'], 'time (h)', time_series_multi[multiplot]['y_label'], ind_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = time_h_slice, obs_values = obs_data_time_slice_rs, obs_label = time_series_multi[multiplot]['obs_var_label'], line_type='style', color_index=i, conversion_factor=conversion_factor)                                                        
                         else:
                             obs_time_time_slice = obs_time_h[obs_time_slice_indices[j][0]:obs_time_slice_indices[j][1]]
                             spr.plot_time_series_multi(time_h_slice, data_list_of_list, [time_series_multi[multiplot]['vars_labels'],scm_datasets_labels], 'time (h)', time_series_multi[multiplot]['y_label'], comp_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, obs_label = time_series_multi[multiplot]['obs_var_label'], conversion_factor=conversion_factor)

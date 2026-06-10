@@ -176,7 +176,6 @@ def read_MAGIC_obs(obs_file, time_slices, date):
         obs_date.append(datetime.datetime(obs_year[i], obs_month[i], obs_day[i], obs_hour[i], obs_minute[i], 0, 0))
     obs_date = np.array(obs_date)
 
-
     for time_slice in time_slices:
         start_date = datetime.datetime(time_slices[time_slice]['start'][0], time_slices[time_slice]['start'][1],time_slices[time_slice]['start'][2], time_slices[time_slice]['start'][3], time_slices[time_slice]['start'][4])
         end_date = datetime.datetime(time_slices[time_slice]['end'][0], time_slices[time_slice]['end'][1],time_slices[time_slice]['end'][2], time_slices[time_slice]['end'][3], time_slices[time_slice]['end'][4])
@@ -184,13 +183,7 @@ def read_MAGIC_obs(obs_file, time_slices, date):
         end_date_index = np.where(obs_date == end_date)[0][0]
         obs_time_slice_indices.append([start_date_index, end_date_index])
 
-    #find the index corresponding to the start of the simulations
-    # Here this is hard-coded to grab the 7th index for MAGIC since there are no obs at the sim start
-    #obs_start_index = np.where(obs_date == date[0][7])[0]
-    #obs_time = obs_time - obs_time[obs_start_index]
-    #print(obs_time)
-
-    obs_pres_l = obs_fid.variables['lev'][:]*100.0 #pressure levels in mb
+    obs_pres_l = obs_fid.variables['lev'][:]*100.0 #pressure levels in Pa
 
     #obs_cld = obs_fid.variables['cld'][:]/100.0
     obs_T = obs_fid.variables['T'][:]
@@ -231,8 +224,7 @@ def read_MAGIC_obs(obs_file, time_slices, date):
     lifrac = (obs_pres_l[index_500-1] - 50000.0)/(obs_pres_l[index_500-1] - obs_pres_l[index_500])
     for j in range(obs_rh.shape[0]): #loop over times
       obs_rh_500[j] = obs_rh[j,index_500-1] + lifrac*(obs_rh[j,index_500] - obs_rh[j,index_500-1])
-            #print index_500, pres_l[-1][j,index_500,k], pres_l[-1][j,index_500-1,k], rh_500_kj, rh[-1][j,index_500,k], rh[-1][j,index_500-1,k]
-
+    
     return_dict = {'year': obs_year, 'month': obs_month, 'day': obs_day, 'hour': obs_hour,
       'time': obs_time, 'date': obs_date, 'time_slice_indices': obs_time_slice_indices,
       #'pres_l': obs_pres_l, 'cld': obs_cld, 'T': obs_T, 'q': obs_q, 'u': obs_u, 'v': obs_v,

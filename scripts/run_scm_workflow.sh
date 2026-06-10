@@ -1,14 +1,8 @@
 #!/bin/bash
 
-# Only checkout SCM data if it is needed for the requested suites?
-# Check if FIX_DATA_DIR is empty
-# Add more user options: vert levs
-# Check if build was configured with all requested suites
-# If only 1 item in a list add as caption, otherwise add as legend
-
-# List of cases to test - note - forcing data for each case may be in separate directories
+# List of cases to test
 # Currently supported: twpice, MAGIC_LEG12A, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, MPACE_REF
-CASE_LIST='MAGIC_LEG15A MAGIC_LEG12A MOSAiC-AMPS COMBLE MPACE_REF'
+CASE_LIST='MOSAiC-AMPS'
 
 # List of suites to test
 SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
@@ -23,23 +17,23 @@ PHYSICS_TIME_STEPS=(300 150 75 150 75 75)
 OUT_FREQS=(1 1 1 2 2 4)
 DIAG_FREQS=(1 1 1 2 2 4)
 
-# Platform (Hera/Derecho) and compiler (intel/gnu)
-PLATFORM='ursa'
+# Platform (ursa/derecho) and compiler (intel/gnu)
+PLATFORM='derecho'
 COMPILER='gnu'
 
-# Flag for type of CCPP SCM repo to use (github/local)
-scm_type='local'
+# Flag for type of SCM repo to use (github/local)
+scm_type='github'
 
 # If using CCPP SCM Github repo, supply the url and branch
 GIT_URL='https://github.com/NCAR/ccpp-scm.git'
 GIT_BRANCH='main'
-scm_tag='tempo'
+scm_tag='test'
 
 # If using local SCM repo, supply the directory path
-local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm-tempo'
+local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm_tempov3'
 
 # Build switches
-make_build='False' 
+make_build='True'
 build_32bit='False'
 
 # Run option to skip existing runs or not
@@ -48,10 +42,11 @@ rerun_cases='False'
 # Tag used for directory naming for the set of scm runs
 
 # Plotting options
-plot_tag='tempo_thomp'
+plot_tag='dtdiv2_comp'
 PLOT_DIR=plots_${plot_tag}
 # Cases that do not support obs comparisons are hard-coded to False
 OBS_COMPARE='True'
+TS_RESAMPLE='True'
 
 # Option to compare to a local baseline(s)
 # Comma-separated if appending more than one baseline
@@ -125,7 +120,7 @@ if [ $make_build == 'True' ]; then
     module purge
     MODULE_PATH="$SCM_DIR/scm/etc/modules"
     module use "$MODULE_PATH"
-    module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
+    module load "${PLATFORM}_${COMPILER}"
     sleep 2
 
     cd $SCM_DIR/scm && mkdir bin && cd bin
@@ -148,10 +143,11 @@ FIX_DATA_DIR=$BASE_DIR/fix_data
 if [ ! -d $FIX_DATA_DIR ]; then
   mkdir -p $FIX_DATA_DIR
   cd $SCM_DIR
+  module purge
   ./contrib/get_all_static_data.sh
   ./contrib/get_thompson_tables.sh
   ./contrib/get_tempo_data.sh
-  ./contrib/get_rrtmgp.sh
+  ./contrib/get_rrtmgp_data.sh
   ./contrib/get_aerosol_climo.sh
   mv scm/data/comparison_data \
      scm/data/physics_input_data \
@@ -209,7 +205,7 @@ for scm_case in $CASE_LIST; do
   module purge
   MODULE_PATH="$SCM_DIR/scm/etc/modules"
   module use "$MODULE_PATH"
-  module load "${PLATFORM}_${COMPILER}_spack_stack_1.9.1"
+  module load "${PLATFORM}_${COMPILER}"
   sleep 5
 
   # Build captions
@@ -243,7 +239,6 @@ for scm_case in $CASE_LIST; do
     for column_area in $COLUMN_AREAS; do
       column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
 
-      #n=0
       # Loop through time steps
       for ((n=0; n<${#TIME_STEPS[@]}; n++)); do
 
@@ -302,7 +297,7 @@ for scm_case in $CASE_LIST; do
             echo "Skipping existing run: ${run_dir}"
           elif [[ ${rerun_cases} == "True" ]]; then
             echo "Overwriting existing run: ${run_dir}"
-            rm -rf "$SCM_DIR/scm/${run_dir}"
+            rm -rf "$SCM_DIR/scm/${run_dir}" "${OUTPUT_PATH}"
           fi
         fi
 
@@ -312,9 +307,15 @@ for scm_case in $CASE_LIST; do
           batch_file=$(mktemp "${SCRIPT_DIR}/generated_batch_XXXXXX.sh")
 
           # Submit jobs for each case/suite combo
-          sed "s~RUN_COMMAND~${RUN_COMMAND}~g" $SCRIPT_DIR/batch_template > "$batch_file"
-          job_id=$(sbatch "$batch_file" | awk '{print $4}')
-          echo "Submitted job $job_id with command: $RUN_COMMAND"
+          if [ $PLATFORM == 'ursa' ]; then 
+            sed "s~RUN_COMMAND~${RUN_COMMAND}~g" $SCRIPT_DIR/ursa_template > "$batch_file"
+            job_id=$(sbatch "$batch_file" | awk '{print $4}')
+            echo "Submitted job $job_id with command: $RUN_COMMAND"
+          elif [ $PLATFORM == 'derecho' ]; then
+            sed "s~RUN_COMMAND~${RUN_COMMAND}~g" $SCRIPT_DIR/derecho_template > "$batch_file"
+            job_id=$(qsub -v dti="$dti",column_area="$column_area",scm_case="$scm_case" "$batch_file")
+            echo "Submitted job $job_id with command: $RUN_COMMAND"
+          fi
           RUNNING=true
 	  sleep 30
 
@@ -330,8 +331,13 @@ for scm_case in $CASE_LIST; do
   for jid in "${JOB_IDS[@]}"; do
     echo "Waiting for job $jid..."
     while true; do
-      state=$(squeue -j "$jid" -h -o %T)
-      [[ "$state" == "RUNNING" || "$state" == "PENDING" ]] && sleep 30 || break
+      if [ $PLATFORM == 'ursa' ]; then
+        state=$(squeue -j "$jid" -h -o %T)
+        [[ "$state" == "RUNNING" || "$state" == "PENDING" ]] && sleep 30 || break
+      elif [ $PLATFORM == 'derecho' ]; then
+        state=$(qstat -f "$jid" | awk -F'= ' '/job_state/ {print $2}')
+        [[ "$state" == "R" || "$state" == "Q" ]] && sleep 30 || break
+      fi
     done
     echo "Job $jid finished"
   done
@@ -347,16 +353,12 @@ for scm_case in $CASE_LIST; do
       mkdir -p ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}
     fi
     for column_area in $COLUMN_AREAS; do
-      #n=0
       for ((n=0; n<${#TIME_STEPS[@]}; n++)); do
         column_dx=$(awk -v a="${column_area}" 'BEGIN { printf "%.2f", sqrt(a)/1000 }')
         timestep="${TIME_STEPS[n]}"
 	dti="${PHYSICS_TIME_STEPS[n]}"
         cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/output.nc ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}/area${column_dx}km_dt${timestep}s_dti${dti}s_output.nc
         cp $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s/output_${scm_case}_${suite}/${scm_case}_${suite}.nml ${BASE_DIR}/scm_runs/${scm_tag}/${scm_case}/${suite}
-	# Decide whether to remove the original run directory
-        #rm -rf $SCM_DIR/scm/run_${scm_case}_${suite}_area${column_dx}km_dt${timestep}s_dti${dti}s
-	#n=$((n+1))
       done
     done
   done
@@ -374,11 +376,13 @@ for scm_case in $CASE_LIST; do
     START_TIME="2013, 6, 8, 17, 45"
     END_TIME="2013, 6, 8, 21, 45"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   elif [[ "$scm_case" == MAGIC_LEG15A ]]; then
     OBS_FILE="/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/data/${scm_case}_obs.nc"
     START_TIME="2013, 7, 21, 0, 0"
     END_TIME="2013, 7, 24, 23, 59"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   elif [[ "$scm_case" == twpice ]]; then
     OBS_FILE="${FIX_DATA_DIR}/raw_case_input/twp180iopsndgvarana_v2.1_C3.c1.20060117.000000.cdf"
     START_TIME="2006, 1, 20, 0"
@@ -399,11 +403,13 @@ for scm_case in $CASE_LIST; do
     START_TIME="2020, 3, 13, 1"
     END_TIME="2020, 3, 13, 18"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   elif [[ "$scm_case" == MPACE_REF ]]; then
     OBS_FILE=""
     START_TIME="2004, 10, 9, 17"
     END_TIME="2004, 10, 10, 17"
     OBS_COMPARE='False'
+    TS_RESAMPLE='FALSE'
   else
     OBS_FILE=""
   fi
@@ -419,6 +425,7 @@ for scm_case in $CASE_LIST; do
   export PLOT_DIR
   export OBS_FILE
   export OBS_COMPARE
+  export TS_RESAMPLE
   export START_TIME
   export END_TIME
   export scm_case
@@ -444,6 +451,20 @@ for scm_case in $CASE_LIST; do
   cp ${SCRIPT_DIR}/scm_plotting_routines.py ${BASE_DIR}/scm_plots
   cp $SCM_DIR/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/scm_plots
   cp $SCM_DIR/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
+
+  if [ $PLATFORM == 'derecho' ]; then
+    module purge
+    module load ncarenv
+    module load conda
+    source "$(conda info --base)/etc/profile.d/conda.sh"
+    if ! conda env list | awk '{print $1}' | grep -qx "env_scm_analysis"; then
+      echo "Creating conda environment env_scm_analysis"
+      conda env create -f "${SCM_DIR}/environment-scm_analysis.yml" -n env_scm_analysis
+    else
+      echo "Using existing conda environment env_scm_analysis"
+    fi
+    conda activate env_scm_analysis
+  fi
 
   # Run the python plotting script
   python ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG

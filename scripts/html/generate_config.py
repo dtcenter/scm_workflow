@@ -25,8 +25,7 @@ for d in os.listdir(PLOT_ROOT):
 for case_name in sorted(case_names):
     suites = {}
     areas = {}
-    dts = {}
-    dtis = {}
+    timesteps = {}
 
     # Loop through directories in scm_plots/plots_test
     for d in sorted(os.listdir(PLOT_ROOT)):
@@ -47,16 +46,18 @@ for case_name in sorted(case_names):
         area = d.split("_area", 1)[1].split("_dt", 1)[0]
         areas[area] = {"label": area}
         dt = d.split("_dt", 1)[1].split("_dti", 1)[0]
-        dts[dt] = {"label": dt}
         dti = d.split("_dti", 1)[1]
-        dtis[dti] = {"label": dti}
+
+        dt_dti = f"{dt}_{dti}"
+        label = f"{dt}s / {dti}s"
+
+        timesteps[dt_dti] = {"label": label}
 
     cases[case_name] = {
         "label": case_name,
         "suites": suites,
         "areas": areas,
-        "dts": dts,
-        "dtis": dtis,
+        "timesteps": timesteps,
         "figures": figures_template
     }
 
