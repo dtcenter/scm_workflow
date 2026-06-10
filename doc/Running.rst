@@ -2,10 +2,10 @@
 Workflow Overview
 *****************
 
-The SCM workflow is version-controlled and available on github. It has been tested on NOAAs pre-
+The CCPP SCM workflow is version-controlled and available on github. It has been tested on NOAAs pre-
 configured platform, Ursa.
 
-To get the SCM workflow, navigate to the directory where you want to clone the repository and move into
+To get the CCPP SCM workflow, navigate to the directory where you want to clone the repository and move into
 the workflow directory.
 
 .. code-block:: console
@@ -35,10 +35,10 @@ brief description.
 
    * ``CASE_LIST``: A list of cases to test. Currently supported cases include twpice, MAGIC_LEG12A,
      MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, and  MPACE_REF.
-   * ``SUITE_LIST``: A list of suites to test. This list is also used for configuring the SCM.
+   * ``SUITE_LIST``: A list of suites to test. This list is also used for configuring the CCPP SCM. Please check all suites under CCPP at https://github.com/NCAR/ccpp-scm/tree/main/ccpp/suites.
    * ``COLUMN_AREAS``: A list of column areas in m^2. If this is left empty, then the cases default
      column area is used.
-   * List of time steps and respective inner timesteps and output frequencies. These arrays must be the
+   * List of time steps and respective inner timesteps (for Thompson and TEMPO) and output frequencies. These arrays must be the
      same length as they are run in sequence with each other rather than running each permutation. For
      example, index 1 of the arrays are one simulation, index 2 are another simulation, etc.
      * ``TIME_STEPS``: A list of model time steps.
@@ -51,18 +51,18 @@ brief description.
    * ``PLATFORM``: Platform to run on. Currently only NOAA's Ursa system has been tested.
    * ``COMPILER``: Compiler to build with. (intel/gnu)
 
-#. Select the SCM repository to use.
+#. Select the CCPP SCM repository to use.
 
-   * ``scm_type``: A flag for the type of SCM repository to use. (local/github)
-   * ``GIT_URL``: The URL of the SCM github repo you wish to clone. (scm_type must be 'github')
-   * ``GIT_BRANCH``: The SCM github branch you wish to use. (scm_type must be 'github')
-   * ``scm_tag``: The name appended to the SCM top directory (e.g. ccpp-scm-{scm_tag}).
-   * ``local_scm_dir``: The path to your local SCM build (scm_type must be 'local').
+   * ``scm_type``: A flag for the type of CCPP SCM repository to use. (local/github)
+   * ``GIT_URL``: The URL of the CCPP SCM github repo you wish to clone. (scm_type must be 'github')
+   * ``GIT_BRANCH``: The CCPP SCM github branch you wish to use. (scm_type must be 'github')
+   * ``scm_tag``: The name appended to the CCPP SCM top directory (e.g. ccpp-scm-{scm_tag}).
+   * ``local_scm_dir``: The path to your local CCPP SCM build (scm_type must be 'local').
 
-#. Toggle options for building and running the SCM.
+#. Toggle options for building and running the CCPP SCM.
 
-   * ``make_build``: Logical switch for selecting whether to build the SCM or not.
-   * ``build_32bit``: Logical switch for building with single precision. Not that only certain physics
+   * ``make_build``: Logical switch for selecting whether to build the CCPP SCM or not.
+   * ``build_32bit``: Logical switch for building with single precision. Note that only certain physics
     support single precission.
    * ``rerun_cases``: Logical option for rerunning simulations if their output already exists.
 
@@ -83,7 +83,7 @@ brief description.
    * ``baseline_label``: The label(s) used in the plot legends for the baseline run(s). Provide as a
      comma-separated list, if more than one baseline.
 
-Once the run script is configured, it can be run on the command line. It will automatically submit SCM
+Once the run script is configured, it can be run on the command line. It will automatically submit CCPP SCM
 jobs to the queue on Ursa. Before running the script, modify the ``batch_template`` as necessary,
 such as the account used to run jobs with, and then execute the ``run_scm_workflow.sh``.
 
@@ -93,20 +93,20 @@ such as the account used to run jobs with, and then execute the ``run_scm_workfl
 
 As the workflow runs, it will perform the following steps:
 
-#. If you have ``make_build`` turned on, it will try to build the SCM, cloning it if necessary. If the
-   SCM executable already exists in the specified directory, then it will promt whether to rebuild or
-   not. The SCM will be configured and built with the suites in ``SUITE_LIST``.
+#. If you have ``make_build`` turned on, it will try to build the CCPP SCM, cloning it if necessary. If the
+   CCPP SCM executable already exists in the specified directory, then it will prompt whether to rebuild or
+   not. The CCPP SCM will be configured and built with the suites in ``SUITE_LIST``.
 
 #. If it does not already exists, the workflow will download the static data necessary for running the
-   SCM and place it in a directory ``scm_workflow/fix_data`` used for all future runs.
+   CCPP SCM and place it in a directory ``scm_workflow/fix_data`` used for all future runs.
 
 #. The workflow will loop through and run all experiments for each case in ``CASE_LIST``. If the case is
-   part of the DEPHY repository, it will clone the repository into ``scm_workflow/DEPHY-SCM``, if it
+   part of the DEPHY repository, it will clone the repository into ``scm_workflow/DEPHY-CCPP SCM``, if it
    does not already exist.
 
-   Jobs are submit in parallel and plotting will fail if one of the jobs fail for a given case. You may
+   Jobs are submitted in parallel and plotting will fail if one of the jobs fail for a given case. You may
    execute the workflow a second time if any jobs fail the first time through. Log files for failed jobs
-   can be found in SCM directory ``scm/bin``.
+   can be found in CCPP SCM directory ``scm/bin``.
 
    Once all jobs are complete, the runs will be moved to a common run directory
    ``scm_workflow/scm_runs/${scm_tag}``.
@@ -121,9 +121,9 @@ As the workflow runs, it will perform the following steps:
    the plots via github pages. This config and the plots will need to be manually pushed to github as 
    the workflow does not currently perform this task. Steps to do this are outlined in Section 2.2.
 
-==================
-Github Pages Setup
-==================
+====================================
+Github Pages Setup to View the plots
+====================================
 
 If it does not already exist, create a new branch off of ``main`` in the scm_workflow.
 

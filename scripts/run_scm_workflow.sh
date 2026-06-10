@@ -7,15 +7,15 @@ CASE_LIST='MOSAiC-AMPS'
 # List of suites to test
 SUITE_LIST='SCM_GFS_v17_p8_ugwpv1'
 
-# List of column areas in m^2
+# List of column areas in m^2 - could also change to column dx in km (more user friendly?) - yes, km is more user friendly but don't have to implement it in this preliminary version
 # *If left empty, uses default in case config nml
 COLUMN_AREAS=''
 
-# List of time steps and respecitve inner timesteps and output frequencies
-TIME_STEPS=(600 300)
-PHYSICS_TIME_STEPS=(300 150)
-OUT_FREQS=(1 2)
-DIAG_FREQS=(1 2)
+# List of time steps, respecitve inner timesteps for Thompson or TEMPO microphysics, and output/diagnostic frequencies
+TIME_STEPS=(600 600 600 300 300 150)
+PHYSICS_TIME_STEPS=(300 150 75 150 75 75)
+OUT_FREQS=(1 1 1 2 2 4)
+DIAG_FREQS=(1 1 1 2 2 4)
 
 # Platform (ursa/derecho) and compiler (intel/gnu)
 PLATFORM='derecho'
@@ -24,7 +24,7 @@ COMPILER='gnu'
 # Flag for type of SCM repo to use (github/local)
 scm_type='github'
 
-# If using SMC Github repo, supply the url and branch
+# If using CCPP SCM Github repo, supply the url and branch
 GIT_URL='https://github.com/NCAR/ccpp-scm.git'
 GIT_BRANCH='main'
 scm_tag='test'
