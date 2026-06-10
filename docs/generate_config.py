@@ -62,7 +62,7 @@ for case_name in sorted(case_names):
     }
 
 config = {
-    "base_plot_dir": f"../../scm_plots/{PLOT_DIRNAME}",
+    "base_plot_dir": f"../scm_plots/{PLOT_DIRNAME}",
     "cases": cases
 }
 
