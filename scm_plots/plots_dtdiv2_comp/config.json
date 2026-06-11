@@ -1,5 +1,5 @@
 {
-  "base_plot_dir": "../scm_plots/plots_dtdiv2_comp",
+  "base_plot_dir": "../../scm_plots/plots_dtdiv2_comp",
   "cases": {
     "MAGIC_LEG15A": {
       "label": "MAGIC_LEG15A",
