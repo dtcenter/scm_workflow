@@ -151,3 +151,44 @@ img {
 #backLink:hover {
     color: #dddddd; /* optional lighter shade on hover */
 }
+
+/* Left-align configuration cards */
+.config-list {
+    max-width: 900px;
+}
+
+/* Card styling */
+.config-card {
+    background: #f4f4f4;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.config-card h3 {
+    margin-top: 0;
+}
+
+.config-card p {
+    margin-bottom: 15px;
+}
+
+/* Button styling */
+.config-button {
+    display: inline-block;
+    padding: 10px 18px;
+    background-color: #003366;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.config-button:hover {
+    background-color: #004c99;
+}
+
+.config-button:visited {
+    color: white;
+}
