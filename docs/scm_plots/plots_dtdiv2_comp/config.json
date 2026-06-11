@@ -21,10 +21,10 @@
       },
       "timesteps": {
         "300s_150s": {
-          "label": "300ss / 150ss"
+          "label": "300s / 150s"
         },
         "600s_300s": {
-          "label": "600ss / 300ss"
+          "label": "600s / 300s"
         }
       },
       "figures": {

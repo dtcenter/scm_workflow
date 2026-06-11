@@ -49,7 +49,7 @@ for case_name in sorted(case_names):
         dti = d.split("_dti", 1)[1]
 
         dt_dti = f"{dt}_{dti}"
-        label = f"{dt}s / {dti}s"
+        label = f"{dt} / {dti}"
 
         timesteps[dt_dti] = {"label": label}
 

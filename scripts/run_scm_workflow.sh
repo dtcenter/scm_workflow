@@ -440,22 +440,22 @@ for scm_case in $CASE_LIST; do
   PLOT_TEMPLATE="${BASE_DIR}/scripts/plot_config_template.ini"
 
   # Create the plot config from the template
-  if [ ! -d ${BASE_DIR}/scm_plots ]; then
-    mkdir -p ${BASE_DIR}/scm_plots
+  if [ ! -d ${BASE_DIR}/docs/scm_plots ]; then
+    mkdir -p ${BASE_DIR}/docs/scm_plots
   fi
-  PLOT_CONFIG="${BASE_DIR}/scm_plots/${scm_case}.ini"
+  PLOT_CONFIG="${BASE_DIR}/docs/scm_plots/${scm_case}.ini"
   envsubst < "$PLOT_TEMPLATE" > "$PLOT_CONFIG"
   echo "Created plot config: $PLOT_CONFIG"
 
   # Move to the plot directory to run the plots
-  cd ${BASE_DIR}/scm_plots
+  cd ${BASE_DIR}/docs/scm_plots
 
   # Copy python plotting script to run directory
-  cp ${SCRIPT_DIR}/scm_analysis.py ${BASE_DIR}/scm_plots
-  cp ${SCRIPT_DIR}/scm_read_obs.py ${BASE_DIR}/scm_plots
-  cp ${SCRIPT_DIR}/scm_plotting_routines.py ${BASE_DIR}/scm_plots
-  cp $SCM_DIR/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/scm_plots
-  cp $SCM_DIR/scm/etc/scripts/configspec.ini ${BASE_DIR}/scm_plots
+  cp ${SCRIPT_DIR}/scm_analysis.py ${BASE_DIR}/docs/scm_plots
+  cp ${SCRIPT_DIR}/scm_read_obs.py ${BASE_DIR}/docs/scm_plots
+  cp ${SCRIPT_DIR}/scm_plotting_routines.py ${BASE_DIR}/docs/scm_plots
+  cp $SCM_DIR/scm/etc/scripts/forcing_file_common.py ${BASE_DIR}/docs/scm_plots
+  cp $SCM_DIR/scm/etc/scripts/configspec.ini ${BASE_DIR}/docs/scm_plots
 
   if [ $PLATFORM == 'derecho' ]; then
     module purge
@@ -472,12 +472,12 @@ for scm_case in $CASE_LIST; do
   fi
 
   # Run the python plotting script
-  python ${BASE_DIR}/scm_plots/scm_analysis.py $PLOT_CONFIG
+  python ${BASE_DIR}/docs/scm_plots/scm_analysis.py $PLOT_CONFIG
 
   #########################################
   # Setup github pages for displaying plots
   #########################################
-  plot_path="${BASE_DIR}/scm_plots/${PLOT_DIR}"
+  plot_path="${BASE_DIR}/docs/scm_plots/${PLOT_DIR}"
   if [ ! -d ${plot_path} ]; then
     mkdir -p ${plot_path}
   fi
