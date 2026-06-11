@@ -152,11 +152,6 @@ img {
     color: #dddddd; /* optional lighter shade on hover */
 }
 
-/* Left-align configuration cards */
-.config-list {
-    max-width: 900px;
-}
-
 /* Card styling */
 .config-card {
     background: #f4f4f4;
@@ -164,17 +159,14 @@ img {
     border-radius: 6px;
     padding: 16px;
     margin-bottom: 20px;
-    text-align: left;
 }
 
 .config-card h3 {
     margin-top: 0;
-    text-align: left;
 }
 
 .config-card p {
     margin-bottom: 15px;
-    text-align: left;
 }
 
 .config-title {
