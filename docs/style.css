@@ -164,14 +164,17 @@ img {
     border-radius: 6px;
     padding: 16px;
     margin-bottom: 20px;
+    text-align: left;
 }
 
 .config-card h3 {
     margin-top: 0;
+    text-align: left;
 }
 
 .config-card p {
     margin-bottom: 15px;
+    text-align: left;
 }
 
 .config-title {
