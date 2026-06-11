@@ -20,10 +20,10 @@
         }
       },
       "timesteps": {
-        "300s_150s": {
+        "dt300s_dti150s": {
           "label": "300s / 150s"
         },
-        "600s_300s": {
+        "dt600s_dti300s": {
           "label": "600s / 300s"
         }
       },
@@ -138,11 +138,11 @@
         }
       },
       "timesteps": {
-        "300s_150s": {
-          "label": "300ss / 150ss"
+        "dt300s_dti150s": {
+          "label": "300s / 150s"
         },
-        "600s_300s": {
-          "label": "600ss / 300ss"
+        "dt600s_dti300s": {
+          "label": "600s / 300s"
         }
       },
       "figures": {
