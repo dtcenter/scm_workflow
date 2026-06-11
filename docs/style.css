@@ -136,3 +136,18 @@ img {
         max-width: 100%;
     }
 }
+/* ===============================
+   Backlink
+   =============================== */
+#backLink {
+    color: white;
+    text-decoration: none; /* optional */
+}
+
+#backLink:visited {
+    color: white;
+}
+
+#backLink:hover {
+    color: #dddddd; /* optional lighter shade on hover */
+}
