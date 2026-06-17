@@ -1224,8 +1224,17 @@ if(plot_ind_datasets):
                                 resample_string = str(int(data_delta_seconds)) + 's'
                                 obs_time_slice_series = pd.Series(obs_data_time_slice, index = obs_date_range)
                                 obs_time_slice_series_rs = obs_time_slice_series.resample(resample_string).mean()
-    
-                                spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = time_h_slice, obs_values = obs_time_slice_series_rs[1::], line_type='color', color_index=i, conversion_factor=conversion_factor)                               
+
+                                #create obs time array from resample series (for plotting)
+                                ref_time = pd.to_datetime('2013-07-20 17:30:00')
+                                obs_time_rs_h_slice = ((obs_time_slice_series_rs.index - ref_time) / pd.Timedelta(hours=1)).to_numpy()
+                                #obs_time_rs = pd.DataFrame(obs_time_slice_series_rs)
+                                #obs_time_rs = obs_time_rs.columns
+                                #obs_time_rs_delta = obs_time_rs - ref_time
+                                #obs_time_rs_h_slice = obs_time_rs_delta / pd.Timedelta(hours=1)
+                                #obs_time_rs_h_slice = obs_time_rs_h_slice.values
+
+                                spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_rs_h_slice[1::], obs_values = obs_time_slice_series_rs[1::], line_type='color', color_index=i, conversion_factor=conversion_factor)                               
                             else:
                                 obs_time_time_slice = obs_time_h[obs_time_slice_indices[j][0]:obs_time_slice_indices[j][1]]
                                 spr.plot_time_series_multi(time_h_slice, [data_time_slice], [scm_datasets_labels[i]], 'time (h)', label, ind_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color', color_index=i, conversion_factor=conversion_factor)
@@ -1732,10 +1741,20 @@ if(len(scm_datasets) > 1):
                             #build list of resampled model datasets for this time slice
                             obs_time_slice_series_rs = []
                             obs_time_slice_series = pd.Series(obs_data_time_slice, index = obs_date_range)
-                            obs_time_slice_series_rs.append(obs_time_slice_series.resample(resample_string).mean())                            
+                            obs_time_slice_series_rs.append(obs_time_slice_series.resample(resample_string).mean())         
+
+                            #create obs time array from resample series (for plotting)
+                            ref_time = pd.to_datetime('2013-07-20 17:30:00')
+                            obs_time_rs = pd.DataFrame(obs_time_slice_series_rs)
+                            obs_time_rs = obs_time_rs.columns
+                            obs_time_rs_delta = obs_time_rs - ref_time
+                            obs_time_rs_h_slice = obs_time_rs_delta / pd.Timedelta(hours=1)
+                            obs_time_rs_h_slice = obs_time_rs_h_slice.values
+
                             obs_time_slice_series_rs = np.array(obs_time_slice_series_rs)
+                            obs_time_slice_series_rs = obs_time_slice_series_rs[0,:]	# removes first dimension with length of 1
                                                                                               
-                            spr.plot_time_series_multi(time_h_slice, data_time_slice, scm_datasets_labels, 'time (h)', label, comp_dir + '/time_series_' + plot_name + plot_ext, obs_time = time_h_slice, obs_values = obs_time_slice_series_rs, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)                            
+                            spr.plot_time_series_multi(time_h_slice, data_time_slice, scm_datasets_labels, 'time (h)', label, comp_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_rs_h_slice, obs_values = obs_time_slice_series_rs, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)                            
                         else:
                             obs_time_time_slice = obs_dict['time_h'][obs_dict['time_slice_indices'][j][0]:obs_dict['time_slice_indices'][j][1]]
                             spr.plot_time_series_multi(time_h_slice, data_time_slice, scm_datasets_labels, 'time (h)', label, comp_dir + '/time_series_' + plot_name + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, line_type='color',skill_scores=skill_scores_val, conversion_factor=conversion_factor)
@@ -1883,7 +1902,15 @@ if(len(scm_datasets) > 1):
                                 obs_time_slice_series_rs = obs_time_slice_series.resample(resample_string).mean()
                                 obs_data_time_slice_rs.append(obs_time_slice_series_rs)
 
-                            spr.plot_time_series_multi(time_h_slice, data_list, time_series_multi[multiplot]['vars_labels'], 'time (h)', time_series_multi[multiplot]['y_label'], ind_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = time_h_slice, obs_values = obs_data_time_slice_rs, obs_label = time_series_multi[multiplot]['obs_var_label'], line_type='style', color_index=i, conversion_factor=conversion_factor)                                                        
+                            #create obs time array from resample series (for plotting)
+                            ref_time = pd.to_datetime('2013-07-20 17:30:00')
+                            obs_time_rs = pd.DataFrame(obs_data_time_slice_rs)
+                            obs_time_rs = obs_time_rs.columns
+                            obs_time_rs_delta = obs_time_rs - ref_time
+                            obs_time_rs_h_slice = obs_time_rs_delta / pd.Timedelta(hours=1)
+                            obs_time_rs_h_slice = obs_time_rs_h_slice.values
+
+                            spr.plot_time_series_multi(time_h_slice, data_list, time_series_multi[multiplot]['vars_labels'], 'time (h)', time_series_multi[multiplot]['y_label'], ind_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = obs_time_rs_h_slice, obs_values = obs_data_time_slice_rs, obs_label = time_series_multi[multiplot]['obs_var_label'], line_type='style', color_index=i, conversion_factor=conversion_factor)                                                        
                         else:
                             obs_time_time_slice = obs_time_h[obs_time_slice_indices[j][0]:obs_time_slice_indices[j][1]]
                             spr.plot_time_series_multi(time_h_slice, data_list_of_list, [time_series_multi[multiplot]['vars_labels'],scm_datasets_labels], 'time (h)', time_series_multi[multiplot]['y_label'], comp_dir + '/time_series_multi_' + multiplot + plot_ext, obs_time = obs_time_time_slice, obs_values = obs_data_time_slice, obs_label = time_series_multi[multiplot]['obs_var_label'], conversion_factor=conversion_factor)

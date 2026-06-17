@@ -34,7 +34,7 @@
                     <option value="">-- Select Area --</option>
                 </select>
 
-	        <label for="dtSelect">Timestep/Physics Timestep</label>
+	        <label for="dtSelect">Timestep/Inner Timestep</label>
                 <select id="dtSelect" onchange="configChanged()">
                     <option value="">-- Select Timesteps --</option>
                 </select>
@@ -85,7 +85,8 @@
 
     const params = new URLSearchParams(window.location.search);
     const configName = params.get("config");
-    const configPath = `../../scm_plots/${configName}/config.json`;
+    const configPath = `scm_plots/${configName}/config.json`;
+    console.log("configPath:", configPath);
 
     let CONFIG = {};
     let CURRENT_CASE = null;
@@ -259,7 +260,11 @@
 
             if (!area || !timestep ) return null;
 
-		return `${caseName}_SCM_${suite}_area${area}_${timestep}`;
+	        const match = timestep.match(/dt(\d+)s?_dti(\d+)s?/);
+                const dt = match[1];
+                const dti = match[2];
+
+	        return `${caseName}_SCM_${suite}_area${area}_dt${dt}s_dti${dti}s`;
         }
 
 	function populateFigures(caseKey) {

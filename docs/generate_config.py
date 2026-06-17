@@ -48,8 +48,8 @@ for case_name in sorted(case_names):
         dt = d.split("_dt", 1)[1].split("_dti", 1)[0]
         dti = d.split("_dti", 1)[1]
 
-        dt_dti = f"{dt}_{dti}"
-        label = f"{dt}s / {dti}s"
+        dt_dti = f"dt{dt}_dti{dti}"
+        label = f"{dt} / {dti}"
 
         timesteps[dt_dti] = {"label": label}
 
@@ -62,11 +62,11 @@ for case_name in sorted(case_names):
     }
 
 config = {
-    "base_plot_dir": f"../../scm_plots/{PLOT_DIRNAME}",
+    "base_plot_dir": f"../scm_plots/{PLOT_DIRNAME}",
     "cases": cases
 }
 
-config_path = os.path.join(SCRIPT_DIR,"config.json")
+config_path = os.path.join(PLOT_ROOT,"config.json")
 
 with open(config_path, "w") as f:
     json.dump(config, f, indent=2)
