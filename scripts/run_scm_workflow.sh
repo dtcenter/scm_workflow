@@ -2,20 +2,20 @@
 
 # List of cases to test
 # Currently supported: twpice, MAGIC_LEG12A, MAGIC_LEG15A, MOSAiC-AMPS, MOSAiC-SS, COMBLE, MPACE_REF
-CASE_LIST='MAGIC_LEG15A'
+CASE_LIST='MOSAiC-AMPS COMBLE'
 
 # List of suites to test
-SUITE_LIST='SCM_GFS_v17_p8_ugwpv1 SCM_GFS_v17_p8_ugwpv1_tempo'
+SUITE_LIST='SCM_GFS_v17_p8_ugwpv1 SCM_GFS_v17_p8_ugwpv1_tempo SCM_GFS_v17_p8_ugwpv1_nosh SCM_GFS_v17_p8_ugwpv1_tempo_nosh'
 
 # List of column areas in m^2
 # *If left empty, uses default in case config nml
 COLUMN_AREAS=''
 
 # List of time steps and respecitve inner timesteps and output frequencies
-TIME_STEPS=(600 300)
-DT_INNER=(300 150)
-OUT_FREQS=(1 2)
-DIAG_FREQS=(1 2)
+TIME_STEPS=(150)
+DT_INNER=(75)
+OUT_FREQS=(4)
+DIAG_FREQS=(4)
 
 # Platform (ursa/derecho) and compiler (intel/gnu)
 PLATFORM='ursa'
@@ -33,7 +33,7 @@ scm_tag='test'
 local_scm_dir='/scratch3/BMC/gmtb/Tracy.Hertneky/phys_tne/FY25-26/ccpp-scm_tempov3'
 
 # Build switches
-make_build='False'
+make_build='True'
 build_32bit='False'
 
 # Run option to skip existing runs or not
@@ -42,7 +42,7 @@ rerun_cases='False'
 # Tag used for directory naming for the set of scm runs
 
 # Plotting options
-plot_tag='dtdiv2_comp'
+plot_tag='noshal_comp_150_75'
 PLOT_DIR=plots_${plot_tag}
 # Cases that do not support obs comparisons are hard-coded to False
 OBS_COMPARE='True'
@@ -132,7 +132,7 @@ if [ $make_build == 'True' ]; then
     else
       cmake -DCCPP_SUITES="${SUITE_BUILD_LIST// /,}" ../src
     fi
-    make -j4
+    make -j8
   fi
 fi
 
@@ -286,7 +286,8 @@ for scm_case in $CASE_LIST; do
 
         # Build the run command, appending CASE_DATA_DIR for DEPHY repo cases
         cd "$SCM_DIR/scm/bin"
-	cp ${SCRIPT_DIR}/run_scm.py run_scm_wf.py
+	cp ${SCRIPT_DIR}/run_scm.py $SCM_DIR/scm/src/run_scm_wf.py
+	ln -sf $SCM_DIR/scm/src/run_scm_wf.py .
         RUN_COMMAND="./run_scm_wf.py -c ${scm_case} -s ${suite} -dt ${timestep} --n_itt_out ${out_freq} --n_itt_diag ${diag_freq} --run_dir $SCM_DIR/scm/${run_dir} -v"
 	echo $RUN_COMMAND
         if [ -n "${CASE_DATA_DIR}" ]; then

@@ -1,0 +1,247 @@
+{
+  "base_plot_dir": "../scm_plots/plots_noshal_comp_150_75",
+  "cases": {
+    "COMBLE": {
+      "label": "COMBLE",
+      "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
+        "GFS_v17_p8_ugwpv1_nosh": {
+          "label": "GFS_v17_p8_ugwpv1_nosh"
+        },
+        "GFS_v17_p8_ugwpv1_tempo": {
+          "label": "GFS_v17_p8_ugwpv1_tempo"
+        },
+        "GFS_v17_p8_ugwpv1_tempo_nosh": {
+          "label": "GFS_v17_p8_ugwpv1_tempo_nosh"
+        },
+        "comp": {
+          "label": "Comparison"
+        }
+      },
+      "areas": {
+        "12.04km": {
+          "label": "12.04km"
+        }
+      },
+      "timesteps": {
+        "dt150s_dti75s": {
+          "label": "150s / 75s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_th.png": "Potential Temperature",
+            "profiles_mean_rh.png": "Relative Humidity",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_qi_tot.png": " Total Qi (qi+qs+qg)",
+            "profiles_mean_qs.png": "Qs",
+            "profiles_mean_qg.png": "Qg",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qr.png": "Qr",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_multi_effective_radius.png": "multi_effective_radius",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_deepconv.png": "dTdt_deepconv",
+            "profiles_mean_dT_dt_shalconv.png": "dTdt_shalconv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_dq_dt_deepconv.png": "dqdt_deepconv",
+            "profiles_mean_dq_dt_shalconv.png": "dqdt_shalconv",
+            "profiles_mean_dq_dt_micro.png": "dqdt_micro",
+            "profiles_mean_dq_dt_pbl.png": "dqdt_pbl",
+            "profiles_mean_rad_cloud_fraction.png": "rad_cloud_fraction",
+            "profiles_mean_rad_cloud_iwp.png": "rad_cloud_iwp",
+            "profiles_mean_rad_cloud_swp.png": "rad_cloud_swp",
+            "profiles_mean_rad_cloud_lwp.png": "rad_cloud_lwp",
+            "profiles_mean_rad_cloud_rwp.png": "rad_cloud_rwp",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies",
+            "profiles_mean_multi_oz_tendencies.png": "multi_oz_tendencies",
+            "profiles_mean_multi_u_tendencies.png": "multi_u_tendencies",
+            "profiles_mean_multi_v_tendencies.png": "multi_v_tendencies",
+            "profiles_mean_multi_u_force_phys.png": "multi_u_force_phys",
+            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_th.png": "Potential Temperature",
+            "profiles_bias_rh.png": "Relative Humidity",
+            "profiles_bias_qv.png": "Qv",
+            "profiles_bias_qi.png": "Qi",
+            "profiles_bias_ql.png": "Ql"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc Pressure",
+            "time_series_T_s.png": "Sfc Temperature",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate Accum",
+            "time_series_tprcp_inst.png": "Instantaneous Total Precip Rate",
+            "time_series_multi_surface_prcp_inst.png": "Multi Instantaneous Total Precip",
+            "time_series_multi_surface_prcp_inst_par.png": "Multi Instantaneous Total Precip Partitions",
+            "time_series_multi_surface_prcp_accum.png": "Multi Total Precip Accum",
+            "time_series_multi_surface_prcp_rate_accum.png": "Multi Total Precip Rate Accum",
+            "time_series_multi_surface_sw_down.png": "Multi Downward Shortwave",
+            "time_series_multi_surface_sw_up.png": "Multi Upward Shortwave",
+            "time_series_multi_surface_lw.png": "Multi Longwave"
+          }
+        },
+        "cont": {
+          "label": "Contours",
+          "files": {
+            "contour_T.png": "Temperature",
+            "contour_qv.png": "Qv",
+            "contour_qi.png": "Qi",
+            "contour_qi_tot.png": "Total Qi (qi+qs+qg)",
+            "contour_qs.png": "Qs",
+            "contour_qg.png": "Qg",
+            "contour_ql.png": "Ql",
+            "contour_qr.png": "Qr",
+            "contour_qc.png": "Qc",
+            "contour_u.png": "U-wind",
+            "contour_v.png": "V-wind"
+          }
+        }
+      }
+    },
+    "MOSAiC-AMPS": {
+      "label": "MOSAiC-AMPS",
+      "suites": {
+        "GFS_v17_p8_ugwpv1": {
+          "label": "GFS_v17_p8_ugwpv1"
+        },
+        "GFS_v17_p8_ugwpv1_nosh": {
+          "label": "GFS_v17_p8_ugwpv1_nosh"
+        },
+        "GFS_v17_p8_ugwpv1_tempo": {
+          "label": "GFS_v17_p8_ugwpv1_tempo"
+        },
+        "GFS_v17_p8_ugwpv1_tempo_nosh": {
+          "label": "GFS_v17_p8_ugwpv1_tempo_nosh"
+        },
+        "comp": {
+          "label": "Comparison"
+        }
+      },
+      "areas": {
+        "44.72km": {
+          "label": "44.72km"
+        }
+      },
+      "timesteps": {
+        "dt150s_dti75s": {
+          "label": "150s / 75s"
+        }
+      },
+      "figures": {
+        "mean": {
+          "label": "Mean Profiles",
+          "files": {
+            "profiles_mean_T.png": "Temperature",
+            "profiles_mean_th.png": "Potential Temperature",
+            "profiles_mean_rh.png": "Relative Humidity",
+            "profiles_mean_qv.png": "Qv",
+            "profiles_mean_qi.png": "Qi",
+            "profiles_mean_qi_tot.png": " Total Qi (qi+qs+qg)",
+            "profiles_mean_qs.png": "Qs",
+            "profiles_mean_qg.png": "Qg",
+            "profiles_mean_ql.png": "Ql",
+            "profiles_mean_qr.png": "Qr",
+            "profiles_mean_qc.png": "Qc",
+            "profiles_mean_multi_effective_radius.png": "multi_effective_radius",
+            "profiles_mean_dT_dt_conv.png": "dTdt_conv",
+            "profiles_mean_dT_dt_deepconv.png": "dTdt_deepconv",
+            "profiles_mean_dT_dt_shalconv.png": "dTdt_shalconv",
+            "profiles_mean_dT_dt_lwrad.png": "dTdt_lwrad",
+            "profiles_mean_dT_dt_swrad.png": "dTdt_swrad",
+            "profiles_mean_dT_dt_micro.png": "dTdt_micro",
+            "profiles_mean_dT_dt_pbl.png": "dTdt_pbl",
+            "profiles_mean_dq_dt_deepconv.png": "dqdt_deepconv",
+            "profiles_mean_dq_dt_shalconv.png": "dqdt_shalconv",
+            "profiles_mean_dq_dt_micro.png": "dqdt_micro",
+            "profiles_mean_dq_dt_pbl.png": "dqdt_pbl",
+            "profiles_mean_rad_cloud_fraction.png": "rad_cloud_fraction",
+            "profiles_mean_rad_cloud_iwp.png": "rad_cloud_iwp",
+            "profiles_mean_rad_cloud_swp.png": "rad_cloud_swp",
+            "profiles_mean_rad_cloud_lwp.png": "rad_cloud_lwp",
+            "profiles_mean_rad_cloud_rwp.png": "rad_cloud_rwp",
+            "profiles_mean_multi_T_forcing.png": "multi_T_forcing",
+            "profiles_mean_multi_q_forcing.png": "multi_q_forcing",
+            "profiles_mean_multi_conv_tendencies.png": "multi_conv_tendencies",
+            "profiles_mean_multi_oz_tendencies.png": "multi_oz_tendencies",
+            "profiles_mean_multi_u_tendencies.png": "multi_u_tendencies",
+            "profiles_mean_multi_v_tendencies.png": "multi_v_tendencies",
+            "profiles_mean_multi_u_force_phys.png": "multi_u_force_phys",
+            "profiles_mean_multi_v_force_phys.png": "multi_v_force_phys"
+          }
+        },
+        "bias": {
+          "label": "Bias Profiles",
+          "files": {
+            "profiles_bias_T.png": "Temperature",
+            "profiles_bias_th.png": "Potential Temperature",
+            "profiles_bias_rh.png": "Relative Humidity",
+            "profiles_bias_qv.png": "Qv",
+            "profiles_bias_qi.png": "Qi",
+            "profiles_bias_ql.png": "Ql"
+          }
+        },
+        "ts": {
+          "label": "Timeseries",
+          "files": {
+            "time_series_lhf.png": "LHF",
+            "time_series_shf.png": "SHF",
+            "time_series_pwat.png": "PWAT",
+            "time_series_sfc_dwn_lw.png": "dwn_lw",
+            "time_series_sfc_dwn_sw.png": "dwn_sw",
+            "time_series_pres_s.png": "Sfc Pressure",
+            "time_series_T_s.png": "Sfc Temperature",
+            "time_series_tprcp_rate_accum.png": "Total Precip Rate Accum",
+            "time_series_tprcp_inst.png": "Instantaneous Total Precip Rate",
+            "time_series_multi_surface_prcp_inst.png": "Multi Instantaneous Total Precip",
+            "time_series_multi_surface_prcp_inst_par.png": "Multi Instantaneous Total Precip Partitions",
+            "time_series_multi_surface_prcp_accum.png": "Multi Total Precip Accum",
+            "time_series_multi_surface_prcp_rate_accum.png": "Multi Total Precip Rate Accum",
+            "time_series_multi_surface_sw_down.png": "Multi Downward Shortwave",
+            "time_series_multi_surface_sw_up.png": "Multi Upward Shortwave",
+            "time_series_multi_surface_lw.png": "Multi Longwave"
+          }
+        },
+        "cont": {
+          "label": "Contours",
+          "files": {
+            "contour_T.png": "Temperature",
+            "contour_qv.png": "Qv",
+            "contour_qi.png": "Qi",
+            "contour_qi_tot.png": "Total Qi (qi+qs+qg)",
+            "contour_qs.png": "Qs",
+            "contour_qg.png": "Qg",
+            "contour_ql.png": "Ql",
+            "contour_qr.png": "Qr",
+            "contour_qc.png": "Qc",
+            "contour_u.png": "U-wind",
+            "contour_v.png": "V-wind"
+          }
+        }
+      }
+    }
+  }
+}
