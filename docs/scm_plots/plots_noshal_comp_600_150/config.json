@@ -1,5 +1,5 @@
 {
-  "base_plot_dir": "../scm_plots/plots_noshal_comp_600_150",
+  "base_plot_dir": "scm_plots/plots_noshal_comp_600_150",
   "cases": {
     "COMBLE": {
       "label": "COMBLE",
